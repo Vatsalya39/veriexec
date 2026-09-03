@@ -11,9 +11,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from packages.core import clock
-from packages.core.models import TransactionIntent
+from packages.core.models import DeterministicIntent, TransactionIntent
 from packages.core.scoring import behavioural, beneficiary, drift, divergence, homoglyph
 from packages.core.policy import channel as channel_policy
+from packages.core.policy.constants import DRIFT_WEIGHTS
 
 NOW = clock.parse_iso("2026-09-18T14:02:11+05:30")   # a Friday inside EXE-001's window
 MASTER = None
@@ -143,7 +144,51 @@ class TestDrift:
         assert round(sum(DRIFT_WEIGHTS.values()), 10) == 1.0
 
     def test_identical_is_zero(self):
-        assert drift.score(self._i()).score == 0.0
+        """Agreement is 0 — but only when there were two statements to agree."""
+        ref = {"amount_minor_units": 1_000_000_00, "currency": "INR",
+               "beneficiary_id_or_name": "Kalyani Forge Components Pvt Ltd",
+               "destination_account": "50100234874471", "action": "TRANSFER"}
+        r = drift.score(self._i(), reference_fields=ref)
+        assert r.score == 0.0
+        assert set(r.measured) == set(DRIFT_WEIGHTS)
+
+    def test_no_reference_and_one_reading_abstains_rather_than_scoring_zero(self):
+        """The self-comparison must not publish 0.
+
+        With no pre-image and `extraction_mode='deterministic'`, `spoken` and `executed` are
+        both filled from the same intent. Scoring that 0 spent 0.15 of the fusion weight
+        certifying "agrees on every bound field" from one reading compared with a copy of
+        itself, and kept coverage at 1.00 so the uncertainty penalty never fired.
+        """
+        r = drift.score(self._i())
+        assert r.score is None
+        assert r.measured == ()
+        assert "no second statement" in r.abstain_reason
+        assert drift.dimension(r).score is None
+        assert drift.dimension(r).abstain_reason
+
+    def test_a_second_extraction_makes_the_comparison_real_again(self):
+        """`extraction_mode` in {llm, hybrid} means `deterministic_intent` is a second opinion."""
+        i = self._i(extraction_mode="hybrid", deterministic_intent=DeterministicIntent(
+            action="TRANSFER", amount=1_000_000.0, currency="INR",
+            beneficiary="Kalyani Forge Components Pvt Ltd",
+            destination_account="50100234879982",       # the extractors disagree here
+        ))
+        r = drift.score(i)
+        assert r.score is not None and r.per_field["account"] == 100.0
+        assert set(r.measured) == set(DRIFT_WEIGHTS)
+
+    def test_unresolved_amount_is_measurable_with_no_reference_at_all(self):
+        """§8's 40 is a claim about the request, not about a disagreement, so it survives.
+
+        S17 and S22 state no readable amount. Both sides being `None` used to return 0.0 —
+        "the amounts agree" about two numbers that do not exist.
+        """
+        r = drift.score(self._i(amount=None))
+        assert r.measured == ("amount",)
+        assert r.per_field["amount"] == 40.0
+        assert r.score == 40.0                 # renormalised over the one measurable field
+        assert "could not be read exactly" in r.narrative
 
     def test_unresolved_amount_scores_40_band(self):
         r = drift.score(self._i(amount=None), reference_fields={"amount_minor_units": 100_000_00})
@@ -165,9 +210,10 @@ class TestDrift:
         assert r.per_field["account"] == 60.0
 
     def test_narrative_deterministic(self):
-        a = drift.score(self._i())
-        b = drift.score(self._i())
-        assert a.narrative == b.narrative
+        ref = {"destination_account": "60100234874471"}
+        a = drift.score(self._i(), reference_fields=ref)
+        b = drift.score(self._i(), reference_fields=ref)
+        assert a.narrative == b.narrative and a.narrative
 
 
 # ------------------------------------------------------------------ B6 divergence

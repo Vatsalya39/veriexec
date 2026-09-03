@@ -271,6 +271,18 @@ def canary_history() -> Any:
 
 # ------------------------------------------------------------------------------- ops
 
+@app.get("/healthz", tags=["ops"])
+def healthz() -> dict[str, Any]:
+    """Frozen health shape {ok, service, version, mode, policy_version} across all services."""
+    return {
+        "ok": True,
+        "service": "audit",
+        "version": SERVICE_VERSION,
+        "mode": f"{MODE}{'+llm' if llm_enabled() else ''}",
+        "policy_version": POLICY_VERSION,
+    }
+
+
 @app.get("/v1/health", response_model=models.HealthResponse, tags=["ops"])
 def health() -> Any:
     """`{ok, chain_ok, record_count, mode, version}` — the same shape all three services serve.

@@ -31,8 +31,10 @@ PORT = int(os.environ.get("INTENTLOCK_AUDIT_PORT", "8003"))
 
 # Team A and Team B, consumed over HTTP. Unreachable is a normal state, not an error: the console
 # falls back to contracts/golden/ and labels it UPSTREAM_UNAVAILABLE (00_SHARED_CONTEXT §14).
-SIGNAL_URL = os.environ.get("INTENTLOCK_SIGNAL_URL", "http://127.0.0.1:8001")
-CORE_URL = os.environ.get("INTENTLOCK_CORE_URL", "http://127.0.0.1:8002")
+SIGNAL_URL = (os.environ.get("INTENTLOCK_SIGNAL_URL") or os.environ.get("INTENTLOCK_A_URL")
+              or "http://127.0.0.1:8001")
+CORE_URL = (os.environ.get("INTENTLOCK_CORE_URL") or os.environ.get("INTENTLOCK_B_URL")
+            or "http://127.0.0.1:8002")
 UPSTREAM_TIMEOUT_S = float(os.environ.get("INTENTLOCK_UPSTREAM_TIMEOUT_S", "3.0"))
 
 # `offline` never calls a language model: the chatbot uses its deterministic templates and every
@@ -70,12 +72,13 @@ def llm_enabled() -> bool:
 def hmac_key() -> bytes:
     """Session salt for PII tokenization and challenge answer MACs.
 
-    Read from the environment when present. The fallback is a fixed development string, and it is
-    fixed on purpose: fixtures under `contracts/golden/` carry MACs that a test recomputes, and a
-    random per-process salt would make them unverifiable. It is not a secret and is documented as
-    such in docs/THREAT_MODEL.md.
+    Read from the environment when present. Fallback to INTENTLOCK_HMAC_SECRET or a fixed
+    development string so test vectors under `contracts/golden/` stay verifiable.
     """
-    return os.environ.get("INTENTLOCK_HMAC_KEY", "intentlock-dev-fixture-key-not-a-secret").encode()
+    secret = (os.environ.get("INTENTLOCK_HMAC_KEY")
+              or os.environ.get("INTENTLOCK_HMAC_SECRET")
+              or "intentlock-dev-fixture-key-not-a-secret")
+    return secret.encode()
 
 
 def ensure_var() -> Path:

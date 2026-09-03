@@ -209,6 +209,7 @@ class TransactionIntent(Inbound):
     origin_session_id: str = ""
     sample_id: str | None = None
 
+    @property
     def amount_minor_units(self) -> int | None:
         """Integer paise, or None when A could not extract an amount at all."""
         return to_paise(self.amount, self.currency)
@@ -502,6 +503,14 @@ class RiskAssessment(Outbound):
     #     the whole block and still render a correct console. ------------------------------
     band_outcome: Decision = Decision.CHALLENGE   # what the score alone would have said
     override_applied: str | None = None           # "HO-1".."HO-8" | "BREAKER" | "DURESS"
+    #: The policy `Outcome` before `Outcome.wire()` collapses it into the frozen three.
+    #: §10's sentence for S09 is "looks like `APPROVE`, emits `SILENT_ESCALATION`", and the
+    #: emission is what the security view consumes. `decide()` computed that name and then
+    #: dropped it at this boundary, leaving C to infer a coerced approval from the
+    #: `duress_escalation` / `override_applied` pair — and `override_applied` reads "DURESS",
+    #: the one word Invariant 5 forbids on the requester's screen. Defaults to the empty
+    #: string so every existing consumer and golden fixture is unaffected (§6.6).
+    outcome: str = ""
     coverage: float = 0.0                         # 0-1 fraction of weight actually present
     required_actions: list[str] = Field(default_factory=list)
     reasons_detailed: list[ReasonDetail] = Field(default_factory=list)

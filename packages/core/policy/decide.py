@@ -130,6 +130,25 @@ class Inputs:
     channel_verdict: str = "PENDING"
     mandatory_out_of_band: bool = False        # CREDENTIAL_RESET always demands it (S17)
 
+    #: Did the authorization this request cites stop being in force before the request
+    #: arrived? Computed by `assess()` from the presented record's own window against `now`,
+    #: never asserted by a caller.
+    #:
+    #: `False` looks like a permissive default and is not one: with no authorization
+    #: presented there is no window to have closed, and PC-1 already refuses to approve
+    #: anything unbound. The pessimistic reading would be to call an absent window expired,
+    #: which would fire this refusal on every first pass and say `AUTH_EXPIRED` about
+    #: authorizations that were never issued.
+    authorization_expired: bool = False
+    #: The stated end of that window, so the sentence can name the deadline it missed rather
+    #: than assert an expiry the operator has to take on trust. Same arrangement as
+    #: `consumed_at` next to `token_already_spent`.
+    authorization_expires_at: str = ""
+
+    #: A4's named injection flags, verbatim from `TransactionIntent.injection_flags`. A has
+    #: already neutralized the text; this is the record that the input attacked the extractor.
+    injection_flags: tuple[str, ...] = ()
+
 @dataclass(frozen=True)
 class PolicyDecision:
     """§16.7's output. `risk_reasons` on the wire is `[r.text for r in reasons]`."""
@@ -548,6 +567,78 @@ def _duress_reason(a: Inputs) -> ReasonDetail:
         "policy.manual_confirmation",
     )
 
+def _injection_reason(a: Inputs) -> ReasonDetail:
+    """Names the flags, never the payload — the neutralized text is not echoed anywhere.
+
+    §16.4: "Injection detected in transcript → `PROMPT_INJECTION_SUSPECTED` → Strip, flag,
+    score as risk, continue with deterministic extraction only." A does the stripping and the
+    deterministic-only extraction; this is the refusal that has to follow it.
+
+    S10's own narration calls the underlying payment real, and it is: ₹25,00,000 to Orion
+    Metals DMCC at `EBIL0000445566`, an account the payee is registered at. That is exactly
+    why the block is categorical rather than scored. Every field in this request was read out
+    of a message that was simultaneously trying to rewrite the reader — including the fields
+    that make it look ordinary. A benign-looking request extracted from hostile input is not
+    evidence of a benign request; it is the outcome the injection was written to produce.
+    """
+    return _r(
+        "INJECTION", "critical",
+        f"This message contains instructions aimed at the system that reads it "
+        f"({len(a.injection_flags)} pattern"
+        f"{'s' if len(a.injection_flags) != 1 else ''} detected: "
+        f"{', '.join(a.injection_flags[:4]).lower().replace('_', ' ')}). The payment details "
+        f"were read from that same message, so none of them can be relied on. Confirm the "
+        f"request with the requester through a channel they did not send this on.",
+        "injection.flags",
+    )
+
+
+def _same_channel_reason(a: Inputs) -> ReasonDetail:
+    """Invariant 6, as a refusal instead of a label.
+
+    §16.4: "Verification arrives on origin channel → `SAME_CHANNEL_VERIFICATION` → Refuse the
+    verification (Invariant 6)". The invariant's own words are "rejected, **not merely
+    penalised**", and the difference is not rhetorical. PC-4 already declines to approve an
+    unverified request, so a same-channel answer that is only *not counted* leaves the
+    transaction sitting at CHALLENGE — the same place it would sit if no answer had come back
+    at all. That reads to the operator as "still waiting", when what actually happened is that
+    someone answered the callback on the line they had placed the request from.
+
+    An out-of-band check exists to make one compromised channel insufficient. An answer that
+    arrives on the origin channel proves nothing about the requester and demonstrates
+    something about the answerer: whoever holds that channel has now used it twice, once to
+    ask and once to confirm. That is adversarial evidence, not missing evidence, which is why
+    it is categorical here rather than a few points on `device_channel`.
+    """
+    return _r(
+        "SAME_CHANNEL", "critical",
+        "The confirmation for this request came back on the same channel the request "
+        "arrived on, so it confirms nothing: whoever controls that channel produced both "
+        "the request and its approval. Reach the requester on a channel they did not "
+        "choose — a callback to the number on file, or an approval in the console.",
+        "channel.verdict",
+    )
+
+
+def _auth_expired_reason(a: Inputs) -> ReasonDetail:
+    """S16, and the reason `world_state.authorization_window` hands over a lapsed window intact.
+
+    The attack is not a forged authorization; it is a real one, presented after it stopped
+    being in force. §6.4 gives every authorization a window precisely so that approval is an
+    event rather than a standing permission (Invariant 9), and a window nothing enforces is a
+    comment. The deadline is named because "expired" without a time is something the operator
+    has to take on trust.
+    """
+    when = f" at {a.authorization_expires_at}" if a.authorization_expires_at else ""
+    return _r(
+        "AUTH_EXPIRED", "critical",
+        f"The authorization this request cites expired{when}, before the request arrived. "
+        f"An approval covers the moment it was given, not every later request that names "
+        f"it. Ask the approver to authorize the payment again against its current details.",
+        "authorization.expires_at",
+    )
+
+
 def decide(a: Inputs) -> PolicyDecision:
     """The only function in the system that writes `decision` (Invariant 2).
 
@@ -577,28 +668,46 @@ def decide(a: Inputs) -> PolicyDecision:
         )
 
     # 2. HARD OVERRIDES — categorical facts, FIXED order, first match wins.
-    for rule in HARD_OVERRIDES:
-        if rule.fires(a):
-            actions = _actions(
-                rule.remedy(a),
-                ("notify_security_officer",) if a.duress_suspected else (),
-            )
-            return PolicyDecision(
-                outcome=Outcome.BLOCK,
-                decision=Decision.BLOCK,
-                band_outcome=band,
-                reasons=(rule.explain(a), _band_reason(a, band)),
-                required_actions=actions,
-                override_applied=rule.id,
-                hard_overrides_fired=(rule.code,),
-                duress_escalation=a.duress_suspected,
-                requires_out_of_band_verification=(
-                    a.mandatory_out_of_band
-                    or a.duress_suspected
-                    or "contact_executive_out_of_band" in actions
-                ),
-                visible_to_requester=Decision.BLOCK.value,
-            )
+    #
+    #    Invariants 4 and 5 collide here, and the corpus says which one bends. Invariant 4 is
+    #    worded unconditionally ("`MISMATCH` ⇒ BLOCK, regardless of `risk_score`"), so HO-1
+    #    keeps absolute precedence. Invariant 5 is equally explicit that a coerced executive
+    #    must see "a normal-looking flow ... never a visible 'duress detected' banner", and §10
+    #    spells out the consequence for S09: *"looks like APPROVE, emits SILENT_ESCALATION"*.
+    #
+    #    S09 fires HO-2 for real — a coerced ₹45,00,000 to BEN-003, an account genuinely not on
+    #    record, over a ₹20,00,000 ceiling. With the override loop ahead of the duress guard the
+    #    screen read BLOCK, which is the one thing the invariant forbids: the attacker standing
+    #    next to her learns the system detected something, and the person the feature exists to
+    #    protect is worse off than if it did not exist.
+    #
+    #    Deferring to duress costs no protection, because the duress path releases nothing —
+    #    it mints no capability token and wakes the security officer. The override that fired
+    #    is not discarded either; it travels in `hard_overrides_fired` so the security view and
+    #    the audit record still name it. Only the sentence shown to the requester changes,
+    #    which is precisely what Invariant 5 legislates.
+    fired = next((r for r in HARD_OVERRIDES if r.fires(a)), None)
+    if fired is not None and (fired.id == "HO-1" or not a.duress_suspected):
+        actions = _actions(
+            fired.remedy(a),
+            ("notify_security_officer",) if a.duress_suspected else (),
+        )
+        return PolicyDecision(
+            outcome=Outcome.BLOCK,
+            decision=Decision.BLOCK,
+            band_outcome=band,
+            reasons=(fired.explain(a), _band_reason(a, band)),
+            required_actions=actions,
+            override_applied=fired.id,
+            hard_overrides_fired=(fired.code,),
+            duress_escalation=a.duress_suspected,
+            requires_out_of_band_verification=(
+                a.mandatory_out_of_band
+                or a.duress_suspected
+                or "contact_executive_out_of_band" in actions
+            ),
+            visible_to_requester=Decision.BLOCK.value,
+        )
 
     # 3. DURESS — the silent path. Reads APPROVE on the wire, mints no capability token, and
     #    wakes the security officer. Because C's executor cannot move money without a token,
@@ -611,25 +720,86 @@ def decide(a: Inputs) -> PolicyDecision:
             reasons=(_duress_reason(a),),
             required_actions=_actions(("notify_security_officer", "named_human_review")),
             override_applied="DURESS",
-            hard_overrides_fired=(WIRE_OVERRIDE_CODES["DURESS"],),
+            # The suppressed override rides along: the requester sees a routine screen, the
+            # security officer sees exactly which categorical fact fired underneath it.
+            hard_overrides_fired=(
+                (WIRE_OVERRIDE_CODES["DURESS"], fired.code) if fired is not None
+                else (WIRE_OVERRIDE_CODES["DURESS"],)
+            ),
             duress_escalation=True,
             requires_out_of_band_verification=True,
             visible_to_requester="PROCESSING",
             cooldown_seconds=cooldown_seconds(a.risk_score),
         )
 
-    # 4. BAND — the fused score's default outcome, and the only place the score decides.
+    # 4. PROMPT INJECTION — the input attacked the reader, so the reading is not evidence.
+    #    Placed after duress so a coerced executive still gets Invariant 5's silent path, and
+    #    after the override loop so the more specific categorical fact keeps the sentence.
+    if a.injection_flags:
+        return PolicyDecision(
+            outcome=Outcome.BLOCK,
+            decision=Decision.BLOCK,
+            band_outcome=band,
+            reasons=(_injection_reason(a), _band_reason(a, band)),
+            required_actions=_actions(
+                ("contact_executive_out_of_band", "notify_security_officer"),
+            ),
+            override_applied="INJECTION",
+            hard_overrides_fired=(WIRE_OVERRIDE_CODES["INJECTION"],),
+            duress_escalation=a.duress_suspected,
+            requires_out_of_band_verification=True,
+            visible_to_requester=Decision.BLOCK.value,
+        )
+
+    # 5. AUTHORIZATION NO LONGER IN FORCE — the window closed before the request arrived.
+    #    Ahead of the same-channel check because it is the more fundamental objection: if the
+    #    grant has lapsed, which channel its confirmation came back on no longer matters.
+    if a.authorization_expired:
+        return PolicyDecision(
+            outcome=Outcome.BLOCK,
+            decision=Decision.BLOCK,
+            band_outcome=band,
+            reasons=(_auth_expired_reason(a), _band_reason(a, band)),
+            required_actions=_actions(("reauthorize_with_current_details",)),
+            override_applied="AUTH_EXPIRED",
+            hard_overrides_fired=(WIRE_OVERRIDE_CODES["AUTH_EXPIRED"],),
+            duress_escalation=a.duress_suspected,
+            requires_out_of_band_verification=True,
+            visible_to_requester=Decision.BLOCK.value,
+        )
+
+    # 6. VERIFICATION ON THE ORIGIN CHANNEL — Invariant 6's refusal.
+    #    Placed with injection and after duress for the same two reasons: a coerced executive
+    #    keeps Invariant 5's silent path, and a categorical fact that names the specific
+    #    failure keeps the sentence ahead of the band's generic one.
+    if a.channel_verdict == "SAME_CHANNEL":
+        return PolicyDecision(
+            outcome=Outcome.BLOCK,
+            decision=Decision.BLOCK,
+            band_outcome=band,
+            reasons=(_same_channel_reason(a), _band_reason(a, band)),
+            required_actions=_actions(
+                ("contact_executive_out_of_band", "notify_security_officer"),
+            ),
+            override_applied="SAME_CHANNEL",
+            hard_overrides_fired=(WIRE_OVERRIDE_CODES["SAME_CHANNEL"],),
+            duress_escalation=a.duress_suspected,
+            requires_out_of_band_verification=True,
+            visible_to_requester=Decision.BLOCK.value,
+        )
+
+    # 7. BAND — the fused score's default outcome, and the only place the score decides.
     outcome = Outcome(band.value)
     reasons: list[ReasonDetail] = [_band_reason(a, band)]
     remedies: list[tuple[str, ...]] = []
     failed: list[str] = []
 
-    # 5. FLOORS — fusion can force a CHALLENGE on evidence grounds alone. Honour its verdict
+    # 8. FLOORS — fusion can force a CHALLENGE on evidence grounds alone. Honour its verdict
     #    rather than re-deriving it, so there is exactly one coverage rule in the system.
     if a.forced_outcome:
         outcome = _worse(outcome, Outcome(a.forced_outcome))
 
-    # 6. PRECONDITIONS — all six are evaluated, not short-circuited: an operator who is about
+    # 9. PRECONDITIONS — all six are evaluated, not short-circuited: an operator who is about
     #    to make a phone call deserves to see every reason the release is held, not the first.
     for pc in APPROVE_PRECONDITIONS:
         if not pc.holds(a):
@@ -645,7 +815,7 @@ def decide(a: Inputs) -> PolicyDecision:
         # A challenge that does not tell the approver what to answer is just a refusal.
         remedies.insert(0, ("answer_comprehension_challenge",))
 
-    # 7. NEVER DOWNGRADE. Every mutation above went through `_worse`, so there is no path
+    # 10. NEVER DOWNGRADE. Every mutation above went through `_worse`, so there is no path
     #    from BLOCK back to CHALLENGE or APPROVE.
     actions = _actions(*remedies)
     wire = outcome.wire()

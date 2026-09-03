@@ -138,7 +138,12 @@ def test_invariant_5_a_duress_approval_mints_nothing():
 def test_amount_reaches_paise_without_ever_touching_a_float():
     assert TransactionIntent(
         transaction_id="t1", amount=1_500_000, currency="INR"
-    ).amount_minor_units() == 150_000_000
+    ).amount_minor_units == 150_000_000
+    # `amount_minor_units` is a property, so a caller that forgets the parens still gets
+    # paise instead of a bound method that stringifies into a fingerprint preimage.
+    assert TransactionIntent(
+        transaction_id="t1", amount=640_000.0, currency="INR"
+    ).amount_minor_units == 64_000_000
     assert to_paise(1500000.0) == 150_000_000          # a whole float is fine
     assert to_paise("15,00,000") == 150_000_000
     assert to_paise(None) is None

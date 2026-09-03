@@ -101,7 +101,12 @@ def test_adversarial_llm_cannot_change_any_decision():
     from packages.core.models import Decision as D
     expected = {
         "s06-tampered-account": D.BLOCK,       # HO-1: the binding, not the score
-        "s03-deepfake-voice": D.CHALLENGE,      # 52 on inline inputs; golden S03 fixtures decide the real row
+        # 80.0 on inline inputs, up from 52: three of the seven dimensions abstain on this
+        # shape (no media/stylometry evidence, no pre-image, no verification channel), so
+        # coverage is 0.60 — the surviving beneficiary 70 / social-engineering 88 /
+        # behavioural 51.75 renormalise to 68 and the 0.30x uncertainty penalty adds 12.
+        # Golden S03 fixtures still decide the real row; this is containment, not calibration.
+        "s03-deepfake-voice": D.BLOCK,
         "s01-routine-payment": D.CHALLENGE,    # PC-1: never bound -> challenge, never approve
     }
     for name, case in SCENARIOS.items():

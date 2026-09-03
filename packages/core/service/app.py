@@ -324,6 +324,7 @@ def _register_routes(app: FastAPI) -> None:
     def get_policy() -> dict[str, Any]:
         return _policy_document()
 
+    @app.post("/v1/assess", response_model=RiskAssessment, include_in_schema=False)
     @app.post("/v1/assess-risk", response_model=RiskAssessment)
     def assess_risk(body: AssessRequest, response: Response) -> RiskAssessment:
         """§23's main route: `{intent, signal_bundle, context}` ⇒ a full `RiskAssessment`.

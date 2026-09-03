@@ -52,7 +52,10 @@ def _live_assess(fixture: dict) -> tuple[dict | None, float, str | None]:
             "scenario_id": fixture["scenario"]["id"]}
     started = time.perf_counter()
     try:
-        resp = httpx.post(f"{CORE_URL}/v1/assess", json=body, timeout=5.0)
+        try:
+            resp = httpx.post(f"{CORE_URL}/v1/assess-risk", json=body, timeout=5.0)
+        except httpx.HTTPError:
+            resp = httpx.post(f"{CORE_URL}/v1/assess", json=body, timeout=5.0)
         elapsed = (time.perf_counter() - started) * 1000
         if resp.status_code != 200:
             return None, elapsed, f"UPSTREAM_{resp.status_code}"

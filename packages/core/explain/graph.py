@@ -28,8 +28,17 @@ def build(
     override_applied: str | None,
     decision: str,
     risk_score: float,
+    account_stated: bool = True,
 ) -> BeneficiaryGraph:
     """The subgraph, deterministic in construction order (replay asserts byte-identity)."""
+    # Three states, and the graph must not collapse them. "Account NOT on record" is an
+    # accusation; drawing it over a request that never named an account states a fact nobody
+    # asserted, and drawing "Account on record" over an unregistered one exculpates the
+    # near-miss account that is the whole point of S09. `account_on_record` is B4's verified
+    # answer, not "the field was populated".
+    account_label = ("Account on record" if account_on_record
+                     else "Account NOT on record" if account_stated
+                     else "No destination account stated")
     nodes: list[GraphNode] = [
         GraphNode(
             id="requester", label=executive_name or "Claimed requester",
@@ -43,8 +52,7 @@ def build(
                    else "emerging" if beneficiary_tier == "provisional" else "unknown"),
         ),
         GraphNode(
-            id="account", label=("Account on record" if account_on_record
-                                 else "Account NOT on record"),
+            id="account", label=account_label,
             kind="bank",
             trust="trusted" if account_on_record else "unknown",
         ),
@@ -52,7 +60,8 @@ def build(
     edges = [
         GraphEdge(source="requester", target="beneficiary", label="pays", kind="flow"),
         GraphEdge(source="beneficiary", target="account",
-                  label=("registered" if account_on_record else "unregistered"),
+                  label=("registered" if account_on_record
+                         else "unregistered" if account_stated else "not stated"),
                   kind="account"),
     ]
 

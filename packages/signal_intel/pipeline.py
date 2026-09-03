@@ -96,10 +96,11 @@ def process_communication(payload: dict) -> dict:
     fresh = None
     if freshness_token:
         fresh = freshness_echoed(raw_text, freshness_token)
-    elif sample_id == "S04":
-        fresh = False  # scripted: the replayed clip cannot answer the freshness phrase
-    elif sample_id in ("S09", "S20"):
-        fresh = True
+    elif payload.get("freshness_echoed") is not None:
+        # The sample (or any caller) states the freshness fact directly. Previously this
+        # branch was three hard-coded sample ids, so the corpus could not grow and a real
+        # caller had no way to report "the voice on the line did answer the phrase".
+        fresh = bool(payload["freshness_echoed"])
 
     # ---------------- A9: confidence composition (evidence-based, prior = 50)
     auth_score, auth_evidence = communication_authenticity(
@@ -195,6 +196,40 @@ def _known_device(claimed_executive_id, device_id) -> bool:
     return device_id in {d["device_id"] for d in exec_profile["devices"]}
 
 
+def _cmp_text(value) -> str:
+    return " ".join(str(value or "").casefold().split())
+
+
+def _cmp_account(value) -> str:
+    return "".join(c for c in str(value or "") if c.isalnum()).upper()
+
+
+def _divergent_fields(det: ExtractionResult, llm_res: dict) -> list[str]:
+    """Field names where the two extraction paths disagree (§6.6 `extraction_divergence`).
+
+    Only fields both paths actually emit are compared, and only when both produced a
+    value — a silent LLM is an abstention, not a disagreement, and must not be priced as
+    one. The deterministic reading still wins the merge for money and accounts (§9); this
+    list exists so that B can see the paths disagreed at all, which was previously
+    impossible because the array was shipped hard-coded empty.
+    """
+    out: list[str] = []
+    pairs = (
+        ("action", det.action if det.action != "OTHER" else None, llm_res.get("action")
+         if llm_res.get("action") != "OTHER" else None, _cmp_text),
+        ("beneficiary", det.beneficiary, llm_res.get("beneficiary"), _cmp_text),
+        ("destination_account", det.destination_account,
+         llm_res.get("destination_account"), _cmp_account),
+        ("urgency", det.urgency, llm_res.get("urgency"), _cmp_text),
+        ("deadline", det.deadline, llm_res.get("deadline_text"), _cmp_text),
+    )
+    for name, det_value, llm_value, norm in pairs:
+        a, b = norm(det_value), norm(llm_value)
+        if a and b and a != b:
+            out.append(name)
+    return out
+
+
 def _merge_intent(det: ExtractionResult, llm_res: dict | None, raw_text: str, channel: str,
                   metadata: dict, transaction_id: str, timestamp: str, sample_id,
                   injection_flags: list) -> dict:
@@ -216,7 +251,11 @@ def _merge_intent(det: ExtractionResult, llm_res: dict | None, raw_text: str, ch
     if not raw_text.strip():
         mode = "failed"
 
-    paths_agree = True  # single-path merge; divergence computed when both paths exist
+    # Only a two-path run can disagree. With one path there is nothing to compare, so
+    # `paths_agree` stays true and contributes its 30 confidence points — the same value
+    # the hard-coded `True` used to produce, but now for a stated reason.
+    divergence = _divergent_fields(det, llm_res) if llm_res else []
+    paths_agree = not divergence
     critical_present = bool(action != "OTHER" and (det.amount or action in
                                                    ("CREDENTIAL_RESET", "PAYMENT_LIMIT_CHANGE")))
     conf = _extraction_confidence(critical_present, paths_agree, not injection_flags)
@@ -241,7 +280,7 @@ def _merge_intent(det: ExtractionResult, llm_res: dict | None, raw_text: str, ch
         "extraction_confidence": conf,
         "extraction_mode": mode,
         "deterministic_intent": build_deterministic_intent_object(det, transaction_id, timestamp),
-        "extraction_divergence": [],
+        "extraction_divergence": divergence,
         "injection_flags": injection_flags,
         "amount_normalization": det.amount_normalization,
         "language_detected": "en-IN-hinglish" if _hinglish(raw_text) else "en",

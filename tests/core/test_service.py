@@ -110,11 +110,15 @@ def test_s06_blocks_over_http(client):
     a = client.post("/v1/assess-risk", json=body()).json()
 
     assert a["decision"] == "BLOCK"
-    # Real scorers fused this body to 29.0 — the band PUBLISHES what the score alone would
-    # have said (§16.5: show where the policy overruled its own score). It must move with
-    # the real weights, never be pinned to the stub-era 58.
-    assert a["band_outcome"] == "APPROVE"
+    # The band PUBLISHES what the score alone would have said (§16.5: show where the policy
+    # overruled its own score), so it moves with the real weights and is never pinned to the
+    # stub-era 58. 35.0 now, up from 29.0, because this body carries an approved pre-image:
+    # `semantic_drift` measures the swapped account instead of abstaining.
+    assert a["band_outcome"] == "CHALLENGE"
+    assert a["risk_score"] == 35.0
     assert a["override_applied"] == "HO-1"
+    # The uncollapsed policy outcome now survives to C alongside the wire decision (§6.6).
+    assert a["outcome"] == "BLOCK"
     assert a["hard_overrides_fired"] == ["FINGERPRINT_MISMATCH"]
     assert a["fingerprint_status"] == "MISMATCH"
     assert a["intent_confidence"] == 25

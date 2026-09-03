@@ -77,8 +77,58 @@ class OpenAICompatibleClient:
         raise LLMUnavailableError("LLM_UNAVAILABLE")  # pragma: no cover
 
 
+class OllamaClient:
+    """Local Ollama client using the native /api/chat endpoint.
+
+    Defaults to http://127.0.0.1:11434 with model 'qwen3:14b' (or CONFIG.llm_model).
+    Zero external dependencies: uses urllib.request from the standard library.
+    """
+
+    def __init__(self, host: str = "http://127.0.0.1:11434", model: str = "") -> None:
+        import os
+        self.host = (os.environ.get("OLLAMA_HOST") or host).rstrip("/")
+        self.model = model or CONFIG.llm_model or "qwen3:14b"
+
+    def complete_json(self, system: str, user: str, *, schema: dict,
+                      timeout_s: float = 20.0) -> dict:
+        import urllib.request
+        import urllib.error
+
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "stream": False,
+            "format": "json",
+            "options": {"temperature": 0.0},
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            f"{self.host}/api/chat",
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+                content = result.get("message", {}).get("content", "")
+                parsed = parse_llm_json(content)
+                if parsed is not None:
+                    return parsed
+                raise LLMUnavailableError("Failed to parse JSON from Ollama response")
+        except Exception as exc:
+            raise LLMUnavailableError(f"Ollama error: {exc}") from exc
+
+
 def get_client() -> LLMClient:
-    if CONFIG.mode == "offline" or not CONFIG.llm_api_key or CONFIG.llm_provider == "none":
+    if CONFIG.mode == "offline":
+        return NullClient()
+    if CONFIG.llm_provider in ("ollama", "local"):
+        return OllamaClient()
+    if not CONFIG.llm_api_key or CONFIG.llm_provider == "none":
         return NullClient()
     return NullClient()  # no network in the demo build; live clients stub off
 

@@ -60,6 +60,35 @@ def _bank_prefix(account: str) -> str:
     return "".join(c for c in (account or "") if c.isalpha())[:4].upper()
 
 
+def _digits(account: str) -> str:
+    return "".join(c for c in (account or "") if c.isdigit())
+
+
+def account_matches(reference: str, registered: str) -> bool:
+    """Does a spoken or written account reference name this registered account?
+
+    Exact first. Failing that, a *shorter* reference is treated as a suffix of the full
+    number, because that is how account numbers are confirmed out loud: `"ICIC account
+    ending 776655"` is not a different account from `ICIC0009988776655`, and A cannot invent
+    the digits the speaker never said.
+
+    The guard is deliberately narrow, because a loose rule here approves fraud:
+      * at least 4 digits, so a stray `"3312"`-style reference cannot match everything;
+      * strictly shorter than the registered number, so two *full* numbers must be equal —
+        `ADCB0000099287` (S09's account) still does not match `ADCB0000099281`, which is
+        exactly the near-miss the corpus is testing;
+      * digits only, so a bank-code prefix never carries the match on its own.
+    """
+    if not reference or not registered:
+        return False
+    if reference == registered:
+        return True
+    ref, reg = _digits(reference), _digits(registered)
+    if len(ref) < 4 or len(ref) >= len(reg):
+        return False
+    return reg.endswith(ref)
+
+
 def score(
     *,
     beneficiary_label: str,
@@ -86,8 +115,23 @@ def score(
 
     reasons: list[str] = []
     confusion: ConfusionReport | None = None
-    if rec is None and label:
-        confusion = confusion_report(label, master)
+    if label:
+        # An unmatched name is compared against every payee. A *matched* name with no payment
+        # history is compared against every OTHER payee, because a typosquat can be registered
+        # under its own misspelling: BEN-004's canonical_name IS the misspelling, so the exact
+        # lookup above finds it, and the confusable check used to be skipped entirely — the one
+        # fact that makes S11 an attack was dropped and the payee read as merely unknown.
+        if rec is None:
+            confusion = confusion_report(label, master)
+        elif int(rec.get("org_payment_count", 0)) == 0:
+            confusion = confusion_report(label, {k: v for k, v in master.items() if k != bid})
+    if confusion is not None and account:
+        # §7.2 rule 4, which `confusion_report` documents as the caller's job: money moving to
+        # an account the impersonated payee already banks at is a data-entry variant, not a
+        # diversion. Nothing leaves the organization that was not already leaving it.
+        target_accounts = master.get(confusion.target_id, {}).get("registered_accounts", ())
+        if any(account_matches(account, str(a)) for a in sorted(target_accounts)):
+            confusion = None
 
     # --- base score from the derived tier -------------------------------------------------
     if rec is None:
@@ -112,7 +156,8 @@ def score(
     account_on_record = False
     if rec is not None:
         registered = {str(a) for a in rec.get("registered_accounts", ())}
-        account_on_record = bool(account) and account in registered
+        account_on_record = bool(account) and any(
+            account_matches(account, r) for r in sorted(registered))
         if account and not account_on_record:
             delta += BENEFICIARY_MODIFIERS["unregistered_account"]
             reasons.append("the destination account is not on record for this payee")
@@ -134,13 +179,11 @@ def score(
                 delta += BENEFICIARY_MODIFIERS["different_bank"]
                 reasons.append("destination account is at a different bank from every "
                                "registered account")
-        if (confusion is not None and bid == confusion.target_id):
-            # the presented name is a *confusable variant of the payee we matched* —
-            # that is the S11 shape and it must not pass
+        if confusion is not None:
+            # The payee we matched is itself a confusable variant of an established payee —
+            # that is the S11 shape, and its own registry entry must not launder it.
             base = max(base, 90.0)
             reasons.insert(0, confusion.reason)
-    elif confusion is not None:
-        pass  # already floored above
 
     total = max(0.0, min(100.0, base + delta))
     # Sanctions is checked even on unmatched names: HO-7 must not depend on the fuzzy

@@ -29,12 +29,13 @@ and the duress path in particular must reach the wire as an APPROVE that cannot 
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 from .clock import iso
 from .clock import now as clock_now
-from .contracts_io import beneficiary_master, executives
-from .crypto.canonical import NonCanonicalValue, to_minor_units
+from .contracts_io import actors, baselines, beneficiary_master
+from .crypto.canonical import NonCanonicalValue
 from .crypto.fingerprint import FieldDelta, FingerprintVerdict, fingerprint, verify
 from .models import (
     AssessInput,
@@ -47,6 +48,7 @@ from .models import (
     SignalBundle,
     TopBlockingFactor,
     TransactionIntent,
+    to_paise,
 )
 from .policy.constants import CHALLENGE_ATTEMPTS_ALLOWED, STUB_SCORE, single_txn_ceiling
 from .policy.decide import Inputs, PolicyDecision, decide
@@ -87,16 +89,37 @@ def minor_units(intent: TransactionIntent) -> int | None:
     `None` does not mean zero and does not mean free. Every rule that cares reads a missing
     amount as *not* low-value, because "we could not parse the amount" has never been a
     reason to skip a check.
+
+    Everything goes through `to_paise`, which is documented as the single door from the
+    frozen `number|null` field to money B can compute with. This function used to call
+    `to_minor_units` directly instead; that helper refuses floats by design, and A emits
+    `amount: 640000.0`, so every scenario resolved to `None` and silently disabled the
+    low-value exemption (PC-4), HO-2's ceiling test, behavioural amount deviation and the
+    amount leg of the fingerprint.
+
+    `amount_normalization.parsed_value` is a *fallback*, not a fast path, and it is not
+    multiplied. A publishes the already-multiplied rupee value there (`two point five
+    crore` -> `parsed_value 25000000.0` alongside `multiplier 10000000.0`, where the
+    multiplier is provenance). The previous fast path multiplied the two together, which
+    would have turned ₹2.5 crore into ₹2.5 lakh crore had it ever run — it was reachable
+    only for an `int` `parsed_value`, so the float guard was all that stood between this
+    build and a 10^7 error on the headline number.
     """
     currency = (intent.currency or "INR").upper()
-    norm = intent.amount_normalization
-    if norm is not None and norm.multiplier and isinstance(norm.parsed_value, int):
-        if not isinstance(norm.parsed_value, bool):
-            return to_minor_units(norm.parsed_value * int(norm.multiplier), currency=currency)
     try:
-        return to_minor_units(intent.amount, currency=currency)
+        paise = to_paise(intent.amount, currency)
     except (NonCanonicalValue, ValueError, TypeError):
-        return None
+        paise = None
+    if paise is not None:
+        return paise
+
+    norm = intent.amount_normalization
+    if norm is not None and norm.parsed_value is not None:
+        try:
+            return to_paise(norm.parsed_value, currency)
+        except (NonCanonicalValue, ValueError, TypeError):
+            return None
+    return None
 
 
 def preimage_fields(
@@ -128,22 +151,86 @@ def preimage_fields(
         "nonce": nonce or None,
     }
 
+#: `requester` is frozen as "claimed executive name/role" (§6.1), so A ships
+#: `"Ananya Rao (Group CFO)"` while the registry holds `"Ananya Rao"`. Stripping one
+#: trailing parenthetical is a *format* normalization, not a fuzzy match: the residue
+#: still has to be equal to a registered id or name, character for character.
+_ROLE_ANNOTATION = re.compile(r"\s*\([^()]*\)\s*$")
+
+
+def _requester_keys(requester: str) -> set[str]:
+    """The exact strings a requester may legitimately be written as."""
+    raw = " ".join((requester or "").split())
+    if not raw:
+        return set()
+    keys = {raw.casefold()}
+    stripped = " ".join(_ROLE_ANNOTATION.sub("", raw).split())
+    if stripped:
+        keys.add(stripped.casefold())
+    return keys
+
+
+def _registry_keys(eid: str, rec: dict) -> set[str]:
+    """The exact strings a registry entry answers to, including the annotated form."""
+    name = " ".join(str(rec.get("name", "")).split())
+    role = " ".join(str(rec.get("role", "")).split())
+    keys = {eid.casefold()}
+    if name:
+        keys.add(name.casefold())
+        if role:
+            keys.add(f"{name} ({role})".casefold())
+    return keys
+
+
+def _median_minor_units(actor_id: str, rec: dict, now: datetime) -> int | None:
+    """The actor's median payment in paise, from whichever registry actually records it.
+
+    `personas.json` states executives' medians in *rupees* under `baseline`;
+    `behaviour_baselines.json` states every actor's median in *minor units* and is the only
+    one of the two that covers employees. Preferring the persona value keeps executives on the
+    registry a human edits, and falling through to the baselines table is what lets an employee
+    requester have a ceiling at all.
+    """
+    baseline = rec.get("baseline") or {}
+    median_inr = baseline.get("median_amount_inr", rec.get("median_amount_inr"))
+    if median_inr:
+        return int(median_inr) * 100
+    table = baselines(now).get("baselines", {}).get(actor_id) or {}
+    median_minor = table.get("median_amount_minor_units")
+    return int(median_minor) if median_minor else None
+
+
 def _executive(intent: TransactionIntent, now: datetime) -> tuple[str | None, int | None]:
     """Resolve `requester` to an actor id, and that actor's own single-transaction ceiling.
 
-    Exact id or case-folded name match only. Fuzzy matching here would quietly do B4's job,
-    badly: a near-miss on an executive's name is not a lookup convenience, it is the attack.
-    `median_amount_inr` is rupees in the fixture, so it is multiplied into paise before it
-    ever reaches `single_txn_ceiling`, which speaks only in minor units.
+    Exact id or case-folded name match only, after one format normalization: a trailing
+    `(Role)` annotation is removed, because the frozen field is "name/role" and A writes
+    both halves. Fuzzy matching here would quietly do B4's job, badly: a near-miss on an
+    executive's name is not a lookup convenience, it is the attack — S11's homoglyph payee
+    still resolves to nothing, because nothing here compares anything but equal strings.
+
+    The search is over `actors()`, not `executives()`. `contracts_io.actors()` says of itself
+    "decide() treats both as requesters", and `behaviour_baselines.json` carries baselines for
+    EMP-101/102/103 as well as the two executives — but this lookup used to read the executive
+    registry alone, so an employee requester resolved to nothing, three of the five baselines
+    were unreachable, and the behavioural dimension abstained with "no registered executive
+    matched the claimed requester". S19's payroll run is instructed by a treasury manager, not
+    an executive; on the corpus's most ordinary payment, the dimension that should have said
+    "this is his routine work" said nothing at all.
+
+    `median_amount_inr` is rupees, and it lives under the persona's `baseline` object.
+    Reading it from the top level returned `None` for every executive, so `ceiling` was
+    always `None`, which silently disabled HO-2's ceiling test on all 22 scenarios. It is
+    multiplied into paise before it reaches `single_txn_ceiling`, which speaks only in
+    minor units.
     """
-    wanted = (intent.requester or "").strip().casefold()
+    wanted = _requester_keys(intent.requester or "")
     if not wanted:
         return None, None
-    for eid, rec in sorted(executives(now).items()):
-        if wanted in (eid.casefold(), str(rec.get("name", "")).strip().casefold()):
-            median = rec.get("median_amount_inr")
-            ceiling = single_txn_ceiling(int(median) * 100) if median else None
-            return eid, ceiling
+    for aid, rec in sorted(actors(now).items()):
+        if wanted & _registry_keys(aid, rec):
+            median = _median_minor_units(aid, rec, now)
+            return aid, single_txn_ceiling(median) if median else None
     return None, None
 
 
@@ -165,7 +252,9 @@ def _beneficiary(intent: TransactionIntent, now: datetime) -> tuple[str | None, 
             names = {str(rec.get("canonical_name", "")).strip().casefold()}
             names.update(str(a).strip().casefold() for a in rec.get("aliases", ()))
             if label.casefold() in names:
-                on_record = account in {str(a) for a in rec.get("registered_accounts", ())}
+                on_record = any(
+                    beneficiary_scoring.account_matches(account, str(a))
+                    for a in sorted(rec.get("registered_accounts", ())))
                 return (bid, str(rec.get("canonical_name") or label), on_record,
                         str(rec.get("sanctions_screen", "clear")))
     return None, label or "this beneficiary", False, "clear"
@@ -282,18 +371,34 @@ def dimensions(
         risk = channel_module.dimension(
             channel_verdict_code=channel_code, channel_switch_flags=flags
         )
-        reason = (
-            "Approval channel is not yet independent of the request channel."
-            if channel_code == "PENDING"
-            else f"Channel verdict: {channel_code}."
-        )
-        if flags:
-            reason += f" {len(flags)} channel-switch pattern(s) observed."
-        out["device_channel"] = DimensionScore(
-            dimension="device_channel", score=risk, reason=reason,
-            evidence_ref="channel.verdict",
-            evidence=tuple(flags),
-        )
+        # PENDING with nothing else to go on is the broken microphone from `fusion.py`'s
+        # opening paragraph. `CHANNEL_PENALTIES["PENDING"] = 0` is right as arithmetic — its
+        # own comment says "verification has not happened yet" — but publishing that 0 as a
+        # *score* spent 0.10 of the fusion weight certifying an independent channel that
+        # nobody has verified, and the reason string underneath it admitted as much. On the
+        # first pass, before C has collected a human response, there is no channel to judge.
+        # `channel.dimension()` is penalty + 12 per switch flag, so a switch flag is a real
+        # measurement and keeps the dimension alive; a bare PENDING has neither term and
+        # abstains, paying the uncertainty penalty instead of granting a discount.
+        if channel_code == "PENDING" and not flags:
+            out["device_channel"] = DimensionScore(
+                dimension="device_channel", score=None,
+                abstain_reason=("no verification channel has been used yet, so channel "
+                                "independence is unverified rather than satisfied"),
+            )
+        else:
+            reason = (
+                "Approval channel is not yet independent of the request channel."
+                if channel_code == "PENDING"
+                else f"Channel verdict: {channel_code}."
+            )
+            if flags:
+                reason += f" {len(flags)} channel-switch pattern(s) observed."
+            out["device_channel"] = DimensionScore(
+                dimension="device_channel", score=risk, reason=reason,
+                evidence_ref="channel.verdict",
+                evidence=tuple(flags),
+            )
     return out
 
 #: Which frozen pre-image field each challenge type actually asks the approver to recall.
@@ -411,6 +516,17 @@ def assess(
         ben.beneficiary_id, ben.canonical_name or "this beneficiary",
         ben.account_on_record, ben.sanctions_screen,
     )
+    #: Three states, not two. An account can be *stated and registered*, *stated and not
+    #: registered*, or *not stated at all* — and only the middle one is an account change.
+    #: HO-2's own sentence is "to an account not on record for X", which is a claim about
+    #: the world: someone named a destination the payee does not bank at. When the requester
+    #: never named an account ("release the balance to their ICIC account", S20), A publishes
+    #: `destination_account: null` and there is no such claim to make. Deriving the override
+    #: from `not account_on_record` turned absence of evidence into evidence of diversion and
+    #: fired a categorical AMOUNT_CEILING block on ordinary payments to established payees.
+    #: B4's `unregistered_account` modifier already guards on `if account and ...`; this is
+    #: the same rule at the override layer.
+    account_stated = bool((intent.destination_account or "").strip())
     amount = minor_units(intent)
 
     # --- the binding. Everything below is arithmetic; this is the cryptography ----------
@@ -471,7 +587,7 @@ def assess(
         duress_suspected=duress,
         amount_minor_units=amount,
         ceiling_minor_units=ceiling,
-        beneficiary_account_changed=not account_on_record,
+        beneficiary_account_changed=account_stated and not account_on_record,
         payee_label=payee_label,
         # HO-3 wiring: the homoglyph verdict from B4, in decide()'s vocabulary
         confusion_verdict=(
@@ -501,6 +617,9 @@ def assess(
         signature_verdict=inputs_signature_verdict(auth),
         channel_independent=channel_v.independent,
         channel_verdict=channel_v.code,
+        # A4's flags, already acted on by A (text neutralized, extraction forced
+        # deterministic-only, `extraction_confidence` docked 30). B owes the refusal.
+        injection_flags=tuple(intent.injection_flags or ()),
     ))
     return _publish(
         intent, signals, dims, fused, decision, verdict, field_deltas,
@@ -607,7 +726,8 @@ def _publish(
         executive_name=intent.requester or "Unknown requester",
         beneficiary_id=beneficiary_id,
         beneficiary_name=intent.beneficiary or "Unmatched payee",
-        account_on_record=current_fields.get("destination_account") is not None,
+        account_on_record=bool(getattr(ben_facts, "account_on_record", False)),
+        account_stated=current_fields.get("destination_account") is not None,
         beneficiary_tier=getattr(ben_facts, "tier", "unknown") if ben_facts else "unknown",
         contributions=[r.wire() for r in fused.contributions],
         override_applied=decision.override_applied,
@@ -663,6 +783,9 @@ def _publish(
         latency_ms=dict(latency_ms),
         band_outcome=decision.band_outcome,
         override_applied=decision.override_applied,
+        # The uncollapsed policy outcome. `decision` above is already `Outcome.wire()`, so
+        # this is the only place the name `SILENT_ESCALATION` survives the handoff to C.
+        outcome=getattr(decision.outcome, "value", str(decision.outcome)),
         coverage=fused.coverage,
         required_actions=list(decision.required_actions),
         reasons_detailed=list(decision.reasons),

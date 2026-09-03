@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 import uuid
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from ..config import now
 from ..textnorm import ascii_fold, normalize_text
@@ -77,6 +78,15 @@ SPOKEN_ENDING = re.compile(
     r"(?:zero|one|two|three|four|five|six|seven|eight|nine)|\d{4,8})\b", re.IGNORECASE)
 BANK_TOKEN = re.compile(r"\b[A-Z]{4}\d{6,}\b|\b\d{9,}\b")
 
+#: A bank code sitting just before the digits, as people actually write it: "HDFC account
+#: 0001234567890" is the same string the vendor master stores fused as "HDFC0001234567890".
+#: Without this, A published the bare digits, B looked them up, found no such account on
+#: record for the payee, and a routine invoice payment scored as money leaving for an
+#: account nobody had ever seen.
+BANK_CODES = ("HDFC", "ICIC", "SBIN", "AXIS", "ADCB", "EBIL", "KKBK", "UTIB", "PUNB")
+SPLIT_BANK_ACCOUNT = re.compile(
+    r"\b(" + "|".join(BANK_CODES) + r")\b[^\n\d]{0,24}?(\d{9,})\b", re.IGNORECASE)
+
 PURPOSE_HINTS = re.compile(
     r"against (invoice|inv-[#\w]+|po \d+|consignment[^\n.]{0,30}|the offtake[^\n.]{0,30}|"
     r"the acquisition[^\n.]{0,30}|the escrow[^\n.]{0,30}|the freight[^\n.]{0,30})|"
@@ -84,11 +94,59 @@ PURPOSE_HINTS = re.compile(
     r"credit note|advance against|quarter-end|freight settlement|die order|tooling line|"
     r"input credit mismatch|rtgs confirmations)", re.IGNORECASE)
 
-REQUESTER_PATTERNS = {
-    "EXE-001": re.compile(r"\b(ananya|ananya rao|cfo|group cfo)\b", re.IGNORECASE),
-    "EXE-002": re.compile(r"\b(vikram|vikram shah|ceo|chief executive)\b", re.IGNORECASE),
-}
-ROLE_MAP = {"EXE-001": "Ananya Rao (Group CFO)", "EXE-002": "Vikram Shah (CEO)"}
+#: Where the *speaker* of a message identifies themselves, in decreasing order of strength.
+#: Self-identification beats the line prefix because a transcript's first prefixed line is
+#: often the anonymous side of the call ("Caller: Priya, this is Ananya Rao" — the requester
+#: is Ananya; `Priya:` is the reply two lines down).
+SPEAKER_POSITIONS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\b(?:it'?s|this is)\s+([A-Za-z][\w' .-]{1,40}?)\b[.,!—-]?"),
+    re.compile(r"\b([A-Z][\w']+(?: [A-Z][\w']+)?)\s+here\b"),
+    re.compile(r"^[ \t]*([A-Za-z][\w' .()-]{0,40}?)\s*:", re.MULTILINE),
+    re.compile(r"[—-]\s*'?([A-Z][\w' .-]{1,40}?)'?\s+(?:to|in|with)\b"),
+    re.compile(r"^From:\s*'?([^<\n@]{2,60}?)'?\s*(?:<|$)", re.MULTILINE | re.IGNORECASE),
+    re.compile(r"^From:\s*([a-z]+\.[a-z]+)@", re.MULTILINE | re.IGNORECASE),
+)
+
+
+@lru_cache(maxsize=1)
+def _persona_index() -> tuple[tuple[str, str, str], ...]:
+    """`(match_key, actor_id, "Name (Role)")` for every persona, longest key first.
+
+    Read from `contracts/personas.json` rather than hard-coded, for two reasons. A two-entry
+    executive-only table cannot name the requester of S19 — a payroll run instructed by the
+    treasury manager, with no `claimed_executive_id` — so A published `requester: null`, B
+    matched nobody, and the behavioural dimension abstained on the corpus's most ordinary
+    payment. And hard-coded display strings drift: this table said `"Vikram Shah (CEO)"` while
+    the registry says `"role": "Chief Executive Officer"`.
+
+    A first name shared by two personas is dropped rather than guessed — naming the wrong
+    requester is worse than naming none, because B scores the requester's baseline.
+    """
+    from ..registry import personas
+
+    p = personas()
+    seen: dict[str, list[tuple[str, str]]] = {}
+    for group, id_key in (("executives", "executive_id"), ("employees", "employee_id")):
+        for rec in p.get(group, ()):
+            name = str(rec.get("name", "")).strip()
+            if not name:
+                continue
+            role = str(rec.get("role", "")).strip()
+            label = f"{name} ({role})" if role else name
+            value = (rec[id_key], label)
+            for key in {name, name.split()[0]}:
+                seen.setdefault(key.casefold(), []).append(value)
+    out = [(key, holders[0][0], holders[0][1])
+           for key, holders in seen.items()
+           if len({h[0] for h in holders}) == 1]
+    return tuple(sorted(out, key=lambda t: -len(t[0])))
+
+
+def _label_for(actor_id: str) -> str:
+    for _key, aid, label in _persona_index():
+        if aid == actor_id:
+            return label
+    return actor_id
 
 
 @dataclass
@@ -167,6 +225,15 @@ def _match_beneficiary(text: str, accounts: set[str] | None = None):
 
 
 def _match_destination_account(text: str) -> str | None:
+    # A fused "HDFC0001234567890" wins outright. Otherwise, a bank code separated from its
+    # digits by a word or two is reassembled into the canonical fused form the vendor master
+    # stores, so that the account the executive named is the account B looks up.
+    fused = re.search(r"\b[A-Z]{4}\d{6,}\b", text)
+    split = SPLIT_BANK_ACCOUNT.search(text)
+    if fused and (not split or fused.start() <= split.start()):
+        return fused.group(0)
+    if split:
+        return f"{split.group(1).upper()}{split.group(2)}"
     m = BANK_TOKEN.search(text)
     if m:
         return m.group(0)
@@ -219,11 +286,28 @@ def _match_purpose(text: str) -> str | None:
 
 
 def _match_requester(text: str, claimed_executive_id: str | None) -> tuple[str | None, str | None]:
+    """`(display label, actor id)` for whoever is asking — not whoever is mentioned.
+
+    The channel's own claim wins when it has one. Otherwise the persona index is searched
+    against speaker positions in priority order, so a name that merely appears in the body
+    ("Rohit, it's Ananya" — Rohit is the recipient) cannot become the requester.
+    """
     if claimed_executive_id:
-        return ROLE_MAP.get(claimed_executive_id, claimed_executive_id), claimed_executive_id
-    for exec_id, pattern in REQUESTER_PATTERNS.items():
-        if pattern.search(text):
-            return ROLE_MAP[exec_id], exec_id
+        return _label_for(claimed_executive_id), claimed_executive_id
+    index = _persona_index()
+    for pattern in SPEAKER_POSITIONS:
+        for m in pattern.finditer(text):
+            candidate = " ".join(g for g in m.groups() if g).replace(".", " ").casefold()
+            for key, aid, label in index:
+                if key in candidate:
+                    return label, aid
+    # Last resort: a persona named anywhere at all. Weak, but "Ananya Rao wants this" is
+    # still a claim about who is asking, and B treats an unresolvable requester as no
+    # baseline rather than as trust.
+    lowered = text.casefold()
+    for key, aid, label in index:
+        if re.search(rf"\b{re.escape(key)}\b", lowered):
+            return label, aid
     m = re.search(r"\bthis is ([A-Z][a-z]+(?: [A-Z][a-z]+)?)\b", text)
     if m:
         return m.group(1), None

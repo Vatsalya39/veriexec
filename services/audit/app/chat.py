@@ -1031,6 +1031,44 @@ def _refuse(kind: str, prose: str, intent: str | None = None) -> ChatAnswer:
 # ---------------------------------------------------------------------------- entry point
 
 
+def ollama_narrate(payload: dict) -> str | None:
+    """Optional prose narrator using local Ollama model (qwen3:14b).
+
+    Strictly constrained by _numbers_agree: any number, amount or count that does not
+    match the deterministic Python-computed SQL facts causes the candidate to be discarded.
+    """
+    import os
+    import json
+    import urllib.request
+
+    host = (os.environ.get("OLLAMA_HOST") or "http://127.0.0.1:11434").rstrip("/")
+    model = os.environ.get("INTENTLOCK_LLM_MODEL") or "qwen3:14b"
+    prompt = (
+        "You are an explainability narrator for INTENTLOCK audit records.\n"
+        "Here are the exact facts and template prose:\n"
+        f"FACTS: {json.dumps(payload, ensure_ascii=False)}\n"
+        "Narrate this in a single professional, concise sentence. Do NOT invent numbers or change any counts."
+    )
+    req_data = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False,
+        "options": {"temperature": 0.1},
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        f"{host}/api/chat",
+        data=req_data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("message", {}).get("content", "").strip()
+    except Exception:
+        return None
+
+
 def answer(store: Any, question: str, narrator: Any = None) -> ChatAnswer:
     """Question -> `ChatAnswer`. The whole pipeline, in the order §6 specifies.
 
@@ -1070,10 +1108,14 @@ def answer(store: Any, question: str, narrator: Any = None) -> ChatAnswer:
     prose = narrate(plan, facts)
     narrated_by = "template"
 
-    if narrator is not None and llm_enabled():
+    active_narrator = narrator
+    if active_narrator is None and llm_enabled():
+        active_narrator = ollama_narrate
+
+    if active_narrator is not None and llm_enabled():
         payload, tokens = model_payload(plan, facts, prose)
         try:
-            candidate = narrator(payload)
+            candidate = active_narrator(payload)
         except Exception:
             # A narrator that raises, times out or returns junk costs the demo nothing. The template
             # is already a complete answer, so this is a fallback with no visible failure mode.

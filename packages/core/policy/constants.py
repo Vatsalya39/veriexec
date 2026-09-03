@@ -233,6 +233,22 @@ WIRE_OVERRIDE_CODES: dict[str, str] = {
     "BREAKER": "BREAKER_TRIPPED",
     "DURESS": "DURESS",
     "SAME_CHANNEL": "SAME_CHANNEL_VERIFICATION",
+    #: §16.4's failure-mode table, whose codes are not the frozen eight but are still
+    #: categorical: "Injection detected in transcript → `PROMPT_INJECTION_SUSPECTED`" and
+    #: "Verification arrives on origin channel → `SAME_CHANNEL_VERIFICATION` → Refuse the
+    #: verification (Invariant 6)". Both names existed in `errors.py` with no producer.
+    "INJECTION": "PROMPT_INJECTION_SUSPECTED",
+    #: The third of that family, and the one S16 turns on: an authorization whose validity
+    #: window closed before the request that cites it arrived. `errors.AuthExpired` has
+    #: carried the name and the sentence from the start with nothing producing it, so a
+    #: lapsed window reached the band and scored as an ordinary request.
+    #:
+    #: It is not one of the frozen eight and must not become one — `HARD_OVERRIDE_IDS` is
+    #: hashed into `policy_hash`, and `_assert_policy_shape` pins the table to it. Like
+    #: `INJECTION` and `SAME_CHANNEL` it is a refusal stage in `decide()` instead, which is
+    #: also where it belongs on the merits: HO-1 asks whether the authorization covers these
+    #: contents, and this asks whether it is still in force at all.
+    "AUTH_EXPIRED": "AUTH_EXPIRED",
 }
 
 PRECONDITION_IDS: tuple[str, ...] = ("PC-1", "PC-2", "PC-3", "PC-4", "PC-5", "PC-6")

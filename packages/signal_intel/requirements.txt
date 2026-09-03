@@ -1,0 +1,8 @@
+# INTENTLOCK — Team A: Signal Intelligence & Extraction
+#
+# Pinned to match repo root requirements.txt:
+fastapi==0.111.1
+uvicorn==0.30.6
+pydantic==2.12.4
+httpx==0.27.2
+pytest==8.4.2

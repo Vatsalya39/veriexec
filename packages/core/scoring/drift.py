@@ -7,6 +7,24 @@ changed something the fingerprint does not bind, or that never had a reference a
 The `40`-for-unresolved-amount rule is the most important number in this module: a channel
 where the amount was never stated in a parseable way is not clean and not fully dirty. 40
 puts it in the middle of the CHALLENGE band, which is the correct outcome: **ask**.
+
+Drift is a *comparison*, so it can only be scored where two statements actually exist. That
+sounds obvious and it was silently false: with no reference pre-image and no second
+extraction, `spoken` and `executed` were both filled from the same intent, every distance
+came out 0, and the dimension published "The instruction and the execution request agree on
+every bound field" — an exculpatory claim derived from one reading compared with a copy of
+itself. It carried 0.15 of the fusion weight and, because it never abstained, coverage still
+read 1.00, so the uncertainty penalty that exists for exactly this case never fired.
+`fusion.py` opens by naming the failure: "Treating `None` as `0` is the bug that turns a
+broken microphone into an approval."
+
+So each field now reports whether it was *measurable*, `DRIFT_WEIGHTS` is renormalised over
+the fields that were, and when none were the dimension abstains. Two things make a field
+measurable: a reference pre-image (an independent, earlier, human-approved statement), or a
+second extraction to disagree with — `extraction_mode` in {`llm`, `hybrid`} with a populated
+`deterministic_intent`. Absence of a *needed* field is measurable on its own, which is what
+keeps §8's 40 alive for an unreadable amount; absence of an account nobody stated is not
+drift, because no statement exists to disagree with.
 """
 
 from __future__ import annotations
@@ -23,9 +41,13 @@ UNRESOLVED_AMOUNT_DISTANCE = 40.0
 
 @dataclass(frozen=True)
 class DriftResult:
-    score: float
+    #: `None` means *unmeasurable*, never "no drift". See the module docstring.
+    score: float | None
     per_field: dict[str, float]
     narrative: str
+    #: The fields that were actually comparable; `DRIFT_WEIGHTS` is renormalised over these.
+    measured: tuple[str, ...] = ()
+    abstain_reason: str = ""
 
 
 def _norm_name(s: str | None) -> str:
@@ -37,8 +59,12 @@ def _digits(s: str | None) -> str:
 
 
 def _amount_distance(spoken: int | None, executed: int | None) -> float:
+    # Both sides missing is the §8 case in its purest form: nobody ever stated a readable
+    # amount. Returning 0.0 here read that as "the amounts agree", which is a statement about
+    # two numbers that do not exist — and it zeroed the one field that stays measurable when
+    # there is no reference at all (S17, S22).
     if spoken is None and executed is None:
-        return 0.0
+        return UNRESOLVED_AMOUNT_DISTANCE
     if spoken is None or executed is None:
         return UNRESOLVED_AMOUNT_DISTANCE
     if spoken == executed:
@@ -107,8 +133,37 @@ def _narrate(per_field: dict[str, float], intent: TransactionIntent) -> str:
     if per_field.get("currency", 0) > 0:
         parts.append("the currency differs")
     if not parts:
-        return "The instruction and the execution request agree on every bound field."
+        # Only reachable when at least one field was genuinely compared, so this now says
+        # what it always claimed to say. `score()` returns an abstention instead when
+        # nothing was comparable, rather than letting this sentence stand on no evidence.
+        compared = ", ".join(sorted(per_field)) or "no field"
+        return (f"The instruction and the execution request agree on every bound field that "
+                f"could be compared ({compared}).")
     return "Drift: " + "; ".join(parts) + "."
+
+
+#: Which fields a single-source extraction can still say something about. §8's 40 is a claim
+#: about the *request* ("the amount was never stated in a parseable way"), not about a
+#: disagreement between two statements, so it survives with no reference. The other four
+#: cannot: an account nobody stated is not an account that changed, which is the same rule
+#: the HO-2 wiring in `assess.py` applies at the override layer.
+_SELF_MEASURABLE: frozenset[str] = frozenset({"amount"})
+
+
+def _has_second_reading(intent: TransactionIntent) -> bool:
+    """Is `deterministic_intent` an independent reading, or the same one under another name?
+
+    A publishes `extraction_mode`, and it is the only honest answer to this question. On this
+    corpus it is `deterministic` for all 22 samples — the LLM client is a `NullClient` — so
+    `deterministic_intent` is a copy of the top-level fields, not a second opinion, and
+    comparing them measures nothing. When a real extractor is wired in, the same predicate
+    turns the comparison back on without another edit here.
+    """
+    det = intent.deterministic_intent
+    if det is None:
+        return False
+    mode = getattr(intent.extraction_mode, "value", intent.extraction_mode)
+    return str(mode).strip().casefold() in {"llm", "hybrid"}
 
 
 def score(
@@ -122,8 +177,13 @@ def score(
     executed_currency: str | None = None,
 ) -> DriftResult:
     """`spoken` is what the executive approved (the reference pre-image when one exists);
-    `executed` is what is about to be paid. With no reference, the intent's own extraction
-    is both sides — which measures extraction ambiguity (S22) rather than tampering."""
+    `executed` is what is about to be paid.
+
+    Returns a `DriftResult` whose `score` is `None` when neither a pre-image nor a second
+    extraction exists and the request resolved every field it needed — there is nothing to
+    compare, and saying "no drift" then would be a claim about evidence that was never
+    gathered. `measured` names the fields the score is actually built from.
+    """
     from ..assess import minor_units as _to_paise  # local import: circular otherwise
 
     spoken_amount = _to_paise(intent)
@@ -162,19 +222,49 @@ def score(
         if det_amount is not None:
             spoken_amount = det_amount
 
-    per_field = {
+    all_fields = {
         "amount": _amount_distance(spoken_amount, executed_amount),
         "account": _account_distance(spoken_account, executed_account),
         "beneficiary": _beneficiary_distance(spoken_beneficiary, executed_beneficiary),
         "action": _action_distance(spoken_action, executed_action),
         "currency": _currency_distance(spoken_currency, executed_currency),
     }
-    total = sum(DRIFT_WEIGHTS[f] * per_field[f] for f in DRIFT_WEIGHTS)
-    return DriftResult(score=round(total, 2), per_field=per_field,
+
+    # Which of those five were comparisons rather than self-comparisons. A reference
+    # pre-image makes all of them real; without one, only the fields that can speak about
+    # the request alone survive, and only when the request actually left them unresolved.
+    if reference_fields is not None or _has_second_reading(intent):
+        measured = tuple(sorted(all_fields))
+    else:
+        measured = tuple(sorted(
+            f for f in all_fields if f in _SELF_MEASURABLE and all_fields[f] > 0
+        ))
+
+    if not measured:
+        return DriftResult(
+            score=None, per_field={}, measured=(),
+            narrative="",
+            abstain_reason=(
+                "no approved pre-image and a single-source extraction, so there is no second "
+                "statement to compare this request against; drift is unmeasured, not absent"
+            ),
+        )
+
+    per_field = {f: all_fields[f] for f in measured}
+    # Renormalise over the weight actually present, exactly as `fuse()` does one level up:
+    # a field that could not be compared must not dilute the fields that could.
+    present = sum(DRIFT_WEIGHTS[f] for f in measured)
+    total = sum(DRIFT_WEIGHTS[f] * per_field[f] for f in measured) / present
+    return DriftResult(score=round(total, 2), per_field=per_field, measured=measured,
                        narrative=_narrate(per_field, intent))
 
 
 def dimension(result: DriftResult) -> DimensionScore:
+    if result.score is None:
+        return DimensionScore(
+            dimension="semantic_drift", score=None,
+            abstain_reason=result.abstain_reason or "semantic drift could not be measured",
+        )
     return DimensionScore(
         dimension="semantic_drift",
         score=result.score,

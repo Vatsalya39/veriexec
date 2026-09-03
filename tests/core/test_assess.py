@@ -92,7 +92,13 @@ def test_s06_blocks_end_to_end_via_ho1():
     assert a.decision is Decision.BLOCK
     # The band is whatever the real scorers fused to — publishing it next to the BLOCK is
     # §16.5's point, and it is NOT required to be CHALLENGE (the 58 was a stub-era number).
-    assert a.band_outcome is Decision.APPROVE          # 29.0: real scorers fused BELOW the stub-era 58
+    # 35.0 now, up from 29.0: this case has an approved pre-image, so `semantic_drift` is
+    # measurable and scores the swapped account (`account=100`, raw 30.0) instead of
+    # abstaining. HO-1 still delivers the BLOCK on the hash, which is what trap #4 protects.
+    assert a.band_outcome is Decision.CHALLENGE
+    assert a.risk_score == pytest.approx(35.0, abs=1e-6)
+    drift_row = next(r for r in a.contribution_table if r.factor == "semantic_drift")
+    assert drift_row.abstained is False and "account=100" in drift_row.evidence
     assert a.override_applied == "HO-1"
     assert a.hard_overrides_fired == ["FINGERPRINT_MISMATCH"]
     assert a.fingerprint_status is FingerprintStatus.MISMATCH
@@ -165,7 +171,11 @@ def test_no_signal_bundle_abstains_rather_than_reading_clean():
     blind = run(signals=None)
     seeing = run()
 
-    assert blind.coverage == pytest.approx(0.60, abs=1e-6)
+    # 0.35, not 0.60: the three A-supplied dimensions abstain for want of a bundle (0.40),
+    # and `semantic_drift` (0.15) and `device_channel` (0.10) abstain because a first pass
+    # with no pre-image and no verification channel has nothing to compare either. That is
+    # below MIN_COVERAGE, which is the correct reading of "we were handed no evidence".
+    assert blind.coverage == pytest.approx(0.35, abs=1e-6)
     assert blind.risk_score > seeing.risk_score
     assert blind.decision is not Decision.APPROVE
     assert any(r.factor == "uncertainty" for r in blind.contribution_table)
@@ -196,14 +206,32 @@ def test_a_caller_cannot_assert_its_own_verification():
 
 
 def test_an_unparseable_amount_is_not_a_small_amount():
-    """A float is refused (§26 trap #2), and "no amount" reads as "not low-value"."""
-    assert minor_units(intent(amount=45.0)) is None
+    """A lossy amount is refused (§26 trap #2), and "no amount" reads as "not low-value"."""
+    # Sub-paise precision is the thing that must never be silently rounded.
+    assert minor_units(intent(amount=45.005)) is None
+    assert minor_units(intent(amount="not a number")) is None
+    assert minor_units(intent(amount=None)) is None
     assert minor_units(intent(amount="4500000")) == 450_000_000
-    assert minor_units(intent(amount=45, amount_normalization={
-        "raw_span": "45 lakh", "parsed_value": 45, "multiplier": 100_000, "rule": "lakh"})) \
-        == 450_000_000
 
-    a = run(intent(amount=45.0))
+    # A whole float is money: the frozen field is `number|null` and A really does emit
+    # `640000.0`. Refusing it here is what pinned `amount_minor_units` to None on all 22
+    # scenarios and disabled the low-value exemption, the ceiling test and amount deviation.
+    assert minor_units(intent(amount=45.0)) == 4_500
+    assert minor_units(intent(amount=6_40_000.0)) == 6_40_00_000
+
+    # `amount_normalization` is an audit trail (§6.6 / Team A §5), never an arithmetic
+    # input: `amount` is authoritative and the object only explains how it was read. B used
+    # to compute `parsed_value * multiplier` instead, which an attacker who controls the
+    # transcript controls both halves of — a crafted `{parsed_value: 1, multiplier: 1}` on a
+    # ₹1 crore request would have landed under the ₹50,000 exemption and walked through PC-4.
+    assert minor_units(intent(amount=4_500_000, amount_normalization={
+        "raw_span": "45 lakh", "parsed_value": 4_500_000, "multiplier": 100_000,
+        "rule": "lakh"})) == 450_000_000
+    assert minor_units(intent(amount=1_00_00_000, amount_normalization={
+        "raw_span": "one crore", "parsed_value": 1, "multiplier": 1,
+        "rule": "hostile"})) == 1_00_00_00_000
+
+    a = run(intent(amount=45.005))
     assert a.amount_minor_units is None
     assert {"PC-1", "PC-4"} <= _codes(a)               # unknown amount still needs a channel
 
@@ -215,7 +243,7 @@ def test_an_amount_we_cannot_parse_breaks_the_binding_too():
     pre-image the executive signed, so it surfaces as a critical delta rather than as a
     silently missing field.
     """
-    a = run(intent(amount=45.0), reference=APPROVED)
+    a = run(intent(amount=45.005), reference=APPROVED)
 
     assert a.decision is Decision.BLOCK and a.override_applied == "HO-1"
     assert [d.field for d in a.fingerprint_deltas] == ["amount_minor_units"]
@@ -310,9 +338,17 @@ def test_top_blocking_factor_names_the_rule_when_a_rule_refused():
     assert blocked.factor == "HO-1" and blocked.points == 0.0
     assert "destination account" in blocked.plain_english
 
-    scored = run().top_blocking_factor
-    assert scored.factor == "social_engineering"       # the heaviest real row, 0.15 x 70
-    assert scored.points == pytest.approx(10.5, abs=1e-3)
+    a = run()
+    scored = a.top_blocking_factor
+    assert scored.factor == "social_engineering"       # the heaviest row that could be scored
+    # 14.0, not 10.5: `points` uses the RENORMALISED weight (`_row()` in fusion.py), and with
+    # drift and device_channel abstaining on a first pass the coverage is 0.75, so this row's
+    # effective weight is 0.15/0.75 = 0.20 against a raw 70. The nominal 0.15 still ships in
+    # the contribution row — asserted here so the renormalisation stays visible, not implied.
+    assert scored.points == pytest.approx(14.0, abs=1e-3)
+    row = next(r for r in a.contribution_table if r.factor == "social_engineering")
+    assert row.weight == pytest.approx(0.15, abs=1e-9)
+    assert row.effective_weight == pytest.approx(0.20, abs=1e-6)
     assert "Social-engineering pressure" in scored.plain_english
 
 

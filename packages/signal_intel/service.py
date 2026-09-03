@@ -57,6 +57,23 @@ class ProcessRequest(BaseModel):
     sample_id: str | None = None
     detector_script: dict = Field(default_factory=dict)
     freshness_token: str | None = None
+    #: The observed answer to a freshness challenge, when the caller already has it.
+    #: `None` = not asked (the dimension abstains). Every corpus sample publishes this
+    #: field; without it on the request model the fact could not cross the wire and the
+    #: pipeline fell back to hard-coded sample ids.
+    freshness_echoed: bool | None = None
+
+
+def _to_payload(req: "ProcessRequest") -> dict:
+    """One request -> pipeline payload mapping, shared by all three POST endpoints.
+
+    The three handlers had three copies of this dict; they had already drifted apart once
+    and any new field had to be added in three places.
+    """
+    return {"channel": req.channel, "raw_text_or_transcript": req.raw_text_or_transcript,
+            "metadata": req.metadata.model_dump(), "sample_id": req.sample_id,
+            "detector_script": req.detector_script, "freshness_token": req.freshness_token,
+            "freshness_echoed": req.freshness_echoed}
 
 
 class ExtractRequest(ProcessRequest):
@@ -80,26 +97,17 @@ def healthz():
 
 @app.post("/v1/process-communication")
 def process_communication_ep(req: ProcessRequest):
-    payload = {"channel": req.channel, "raw_text_or_transcript": req.raw_text_or_transcript,
-               "metadata": req.metadata.model_dump(), "sample_id": req.sample_id,
-               "detector_script": req.detector_script, "freshness_token": req.freshness_token}
-    return process_communication(payload)
+    return process_communication(_to_payload(req))
 
 
 @app.post("/v1/extract")
 def extract_ep(req: ExtractRequest):
-    payload = {"channel": req.channel, "raw_text_or_transcript": req.raw_text_or_transcript,
-               "metadata": req.metadata.model_dump(), "sample_id": req.sample_id,
-               "detector_script": req.detector_script, "freshness_token": req.freshness_token}
-    return {"intent": process_communication(payload)["intent"]}
+    return {"intent": process_communication(_to_payload(req))["intent"]}
 
 
 @app.post("/v1/analyze-signals")
 def analyze_signals_ep(req: AnalyzeRequest):
-    payload = {"channel": req.channel, "raw_text_or_transcript": req.raw_text_or_transcript,
-               "metadata": req.metadata.model_dump(), "sample_id": req.sample_id,
-               "detector_script": req.detector_script, "freshness_token": req.freshness_token}
-    return {"signals": process_communication(payload)["signals"]}
+    return {"signals": process_communication(_to_payload(req))["signals"]}
 
 
 @app.post("/v1/freshness/issue")

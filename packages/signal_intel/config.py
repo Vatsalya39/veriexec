@@ -1,11 +1,30 @@
 """Configuration and the single injectable clock (shared-context rule 12: no scattered now())."""
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3] if Path(__file__).resolve().parents[3].name == "intentfake" else Path(__file__).resolve().parents[2]
-CONTRACTS_DIR = Path(__file__).resolve().parents[2] / "contracts" if REPO_ROOT.name != "intentfake" else REPO_ROOT / "contracts"
+
+def _find_repo_root() -> Path:
+    """Walk up until a directory holds `contracts/`, which is what every part reads.
+
+    The previous form indexed `parents[3]` and compared it to a checkout name from an
+    earlier repo layout. It happened to land correctly here and raised `IndexError` for
+    any checkout fewer than four levels from the filesystem root, which is the kind of
+    breakage that only appears on someone else's machine.
+    """
+    here = Path(__file__).resolve()
+    for candidate in here.parents:
+        if (candidate / "contracts").is_dir():
+            return candidate
+    return here.parents[2]
+
+
+REPO_ROOT = _find_repo_root()
+
+#: Honoured by B (`packages/core/config.py`) and now by A too, so both halves of the
+#: A -> B junction can be pointed at one registry set without editing code.
+CONTRACTS_DIR = Path(os.environ.get("INTENTLOCK_CONTRACTS_DIR") or (REPO_ROOT / "contracts"))
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
