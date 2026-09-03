@@ -1,0 +1,541 @@
+{
+  "_generated_by": "services/audit/tools/make_golden.py — do not hand-edit",
+  "_mocked": "Replace with a live response from :8002 at integration.",
+  "assessment": {
+    "abstentions": [
+      {
+        "contributed_points": 0.0,
+        "dimension": "beneficiary",
+        "label": "Beneficiary risk",
+        "reason": "This request moves no money, so there is no payee to score.",
+        "scored_as_clean": false,
+        "weight": 0.2
+      }
+    ],
+    "arithmetic": {
+      "contributions_subtotal": 52.05,
+      "coverage": 0.8,
+      "explanation": "52.05 ÷ 0.80 coverage = 65.06, plus a 6.00-point uncertainty penalty for what could not be measured = 71.",
+      "renormalized": 65.06,
+      "risk_score": 71,
+      "uncertainty_penalty": 6.0,
+      "uncertainty_penalty_rate": 0.3
+    },
+    "assessment_id": "ASM-S18",
+    "band_outcome": "BLOCK",
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "contributions": [
+      {
+        "dimension": "behavioural",
+        "evidence_ref": "EV-BASELINE",
+        "label": "Behavioural deviation",
+        "points": 13.8,
+        "raw": 92,
+        "reason": "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "social_engineering",
+        "evidence_ref": "EV-LANG",
+        "label": "Social engineering",
+        "points": 12.9,
+        "raw": 86,
+        "reason": "2 of 5 pressure families present: authority invocation, control bypass request.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "semantic_drift",
+        "evidence_ref": "EV-DRIFT",
+        "label": "Semantic drift",
+        "points": 9.3,
+        "raw": 62,
+        "reason": "The executed request matches the captured authorization field for field.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "device_channel",
+        "evidence_ref": "EV-CHANNEL",
+        "label": "Device and channel",
+        "points": 8.4,
+        "raw": 84,
+        "reason": "The approval and the request share a channel, so confirming on it proves only that the same party controls both.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "identity_confidence",
+        "evidence_ref": "EV-IDENT",
+        "label": "Identity confidence",
+        "points": 4.8,
+        "raw": 48,
+        "reason": "The request arrived on a contact channel registered to EXE-001.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "communication_authenticity",
+        "evidence_ref": "EV-AUTH",
+        "label": "Communication authenticity",
+        "points": 2.85,
+        "raw": 19,
+        "reason": "Detectors are consistent with a genuine sender: stylometric match 44 against a 40-message register.",
+        "weight": 0.15
+      }
+    ],
+    "control_label": null,
+    "counterfactual": {
+      "dimensions": [
+        "behavioural",
+        "social_engineering",
+        "semantic_drift",
+        "device_channel"
+      ],
+      "kind": "numeric",
+      "narrative": "This would have scored 29 or below — an approval — if Behavioural deviation, Social engineering, Semantic drift and Device and channel had contributed nothing. It contributed 44.4 of the 71 points.",
+      "points_freed": 44.4,
+      "target_band_max": 29
+    },
+    "decided_at_step": "band",
+    "decision": "BLOCK",
+    "duress_escalation": false,
+    "engine_version": "fixture-1.0.0",
+    "evidence_graph": {
+      "edges": [
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_voice"
+        },
+        {
+          "from": "det_voice",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_stylometry"
+        },
+        {
+          "from": "det_stylometry",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "dim_communication_authenticity",
+          "label": "2.85",
+          "to": "fusion"
+        },
+        {
+          "from": "dim_identity_confidence",
+          "label": "4.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_identity_confidence"
+        },
+        {
+          "from": "dim_social_engineering",
+          "label": "12.90",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_social_engineering"
+        },
+        {
+          "from": "dim_behavioural",
+          "label": "13.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_behavioural"
+        },
+        {
+          "from": "dim_beneficiary",
+          "label": "abstained",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_beneficiary"
+        },
+        {
+          "from": "dim_semantic_drift",
+          "label": "9.30",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_semantic_drift"
+        },
+        {
+          "from": "dim_device_channel",
+          "label": "8.40",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_device_channel"
+        },
+        {
+          "from": "fusion",
+          "label": "band",
+          "to": "decision"
+        }
+      ],
+      "nodes": [
+        {
+          "detail": "COLLAB_PLATFORM",
+          "id": "intent",
+          "kind": "source",
+          "label": "Request",
+          "state": "ok"
+        },
+        {
+          "detail": "abstained",
+          "id": "det_voice",
+          "kind": "detector",
+          "label": "Voice",
+          "state": "abstain"
+        },
+        {
+          "detail": "score 44",
+          "id": "det_stylometry",
+          "kind": "detector",
+          "label": "Stylometry",
+          "state": "ok"
+        },
+        {
+          "detail": "19 × 0.15 = 2.85",
+          "id": "dim_communication_authenticity",
+          "kind": "dimension",
+          "label": "Communication authenticity",
+          "points": 2.85,
+          "state": "ok"
+        },
+        {
+          "detail": "48 × 0.10 = 4.80",
+          "id": "dim_identity_confidence",
+          "kind": "dimension",
+          "label": "Identity confidence",
+          "points": 4.8,
+          "state": "ok"
+        },
+        {
+          "detail": "86 × 0.15 = 12.90",
+          "id": "dim_social_engineering",
+          "kind": "dimension",
+          "label": "Social engineering",
+          "points": 12.9,
+          "state": "ok"
+        },
+        {
+          "detail": "92 × 0.15 = 13.80",
+          "id": "dim_behavioural",
+          "kind": "dimension",
+          "label": "Behavioural deviation",
+          "points": 13.8,
+          "state": "ok"
+        },
+        {
+          "detail": "not evaluated",
+          "id": "dim_beneficiary",
+          "kind": "dimension",
+          "label": "Beneficiary risk",
+          "points": null,
+          "state": "abstain"
+        },
+        {
+          "detail": "62 × 0.15 = 9.30",
+          "id": "dim_semantic_drift",
+          "kind": "dimension",
+          "label": "Semantic drift",
+          "points": 9.3,
+          "state": "ok"
+        },
+        {
+          "detail": "84 × 0.10 = 8.40",
+          "id": "dim_device_channel",
+          "kind": "dimension",
+          "label": "Device and channel",
+          "points": 8.4,
+          "state": "ok"
+        },
+        {
+          "detail": "risk 71, coverage 80%",
+          "id": "fusion",
+          "kind": "fusion",
+          "label": "Weighted fusion",
+          "state": "ok"
+        },
+        {
+          "detail": "band BLOCK",
+          "id": "decision",
+          "kind": "decision",
+          "label": "BLOCK",
+          "state": "block"
+        }
+      ]
+    },
+    "floors_failed": [],
+    "forced_by": null,
+    "hard_override": null,
+    "intent_confidence": {
+      "clamp_reason": null,
+      "clamped_to": null,
+      "excludes": [
+        "voice_authenticity",
+        "video_authenticity"
+      ],
+      "excludes_reason": "Deliberately independent of voice and video. A perfect clone must not be able to raise confidence in intent.",
+      "formula": "100 − Σ(weight × penalty)",
+      "penalties": [
+        {
+          "abstained": false,
+          "factor": "semantic_drift",
+          "points": 21.7,
+          "value": 62,
+          "value_used": 62,
+          "weight": 0.35
+        },
+        {
+          "abstained": false,
+          "factor": "fingerprint",
+          "points": 0.0,
+          "value": 0,
+          "value_used": 0,
+          "weight": 0.2
+        },
+        {
+          "abstained": false,
+          "factor": "behavioural",
+          "points": 13.8,
+          "value": 92,
+          "value_used": 92,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "device_channel",
+          "points": 12.6,
+          "value": 84,
+          "value_used": 84,
+          "weight": 0.15
+        },
+        {
+          "abstained": true,
+          "factor": "beneficiary",
+          "points": 6.0,
+          "value": null,
+          "value_used": 60,
+          "weight": 0.1
+        },
+        {
+          "abstained": false,
+          "factor": "extraction_inverse",
+          "points": 0.4,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.05
+        }
+      ],
+      "penalty_total": 54.5,
+      "value": 46
+    },
+    "intent_id": "INT-S18",
+    "latency_ms": 1177,
+    "mode": "FULL",
+    "outcome": "BLOCK",
+    "override_applied": null,
+    "policy_version": "1.0.0",
+    "preconditions_failed": [],
+    "required_actions": [
+      "Hold the payment. It is not released by this decision.",
+      "Notify the named executive on a registered contact channel.",
+      "Escalate to the security desk with this record's sequence number."
+    ],
+    "risk_score": 71,
+    "scored_at": "2026-09-18T11:04:01.157000+05:30",
+    "top_reasons": [
+      "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+      "2 of 5 pressure families present: authority invocation, control bypass request.",
+      "The executed request matches the captured authorization field for field."
+    ],
+    "visible_to_requester": "BLOCK"
+  },
+  "capability_token": null,
+  "challenge": null,
+  "coverage_note": "Evidence coverage 80%: this request moves no money, so there is no payee to score. Missing evidence added an uncertainty penalty rather than reducing risk.",
+  "intent": {
+    "action": "PRIVILEGED_ACTION",
+    "amount_display": null,
+    "amount_minor_units": null,
+    "beneficiary": null,
+    "channel": "COLLAB_PLATFORM",
+    "currency": "INR",
+    "deadline_iso": "2026-09-18T12:04:00+05:30",
+    "executive_id": "EXE-001",
+    "extraction": {
+      "confidence": 92,
+      "fields_missing": [
+        "amount_minor_units",
+        "beneficiary_id_or_name",
+        "destination_account"
+      ],
+      "injection_flags": [],
+      "mode": "hybrid"
+    },
+    "fingerprint_covered_fields": {
+      "action": "PRIVILEGED_ACTION",
+      "amount_minor_units": null,
+      "beneficiary_id_or_name": null,
+      "currency": "INR",
+      "deadline_iso": "2026-09-18T12:04:00+05:30",
+      "destination_account": null,
+      "executive_id": "EXE-001",
+      "purpose": null
+    },
+    "fingerprint_field_order": [
+      "action",
+      "amount_minor_units",
+      "beneficiary_id_or_name",
+      "currency",
+      "deadline_iso",
+      "destination_account",
+      "executive_id",
+      "purpose"
+    ],
+    "fingerprint_hex": "21f2f50fdf3d597f00f4deebe0eabd7963e84158857de0e5bb1cda7c4252ff8d",
+    "intent_id": "INT-S18",
+    "language": "en-IN",
+    "operator_id": "EMP-102",
+    "purpose": null,
+    "received_at": "2026-09-18T11:04:00+05:30",
+    "scenario_id": "S18",
+    "stated_urgency": "MEDIUM",
+    "transcript_redacted": "Please raise my single-transaction approval limit to ₹5 crore for the rest of the quarter — the current ceiling is blocking legitimate settlements."
+  },
+  "out_of_band": null,
+  "scenario": {
+    "channel": "COLLAB_PLATFORM",
+    "class": "ATTACK",
+    "description": "The attacker goes after the ceiling, not the payment.",
+    "expected_decision": "BLOCK",
+    "expected_frictionless": false,
+    "hero": null,
+    "id": "S18",
+    "proves": "Attacks on the control itself",
+    "title": "Request to raise the approval limit"
+  },
+  "signals": {
+    "behavioural": {
+      "channel_switch_flags": [],
+      "deviation_score": 92
+    },
+    "beneficiary": null,
+    "bundle_id": "SIG-S18",
+    "channel": {
+      "device_channel_score": 84,
+      "independent_channel": false,
+      "secondary_approver_nominated_by_requester": false
+    },
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "communication": {
+      "authenticity_score": 81,
+      "detector_abstentions": [
+        {
+          "detector": "voice",
+          "input_present": false,
+          "reason": "no audio on a collaboration platform"
+        }
+      ],
+      "stylometry_match": 44,
+      "video_abstain": false,
+      "video_authenticity": null,
+      "voice_abstain": false,
+      "voice_authenticity": null
+    },
+    "coverage": 0.8,
+    "dimensions_unavailable": [
+      "beneficiary"
+    ],
+    "fingerprint": {
+      "field_deltas": [],
+      "verdict": "MATCH"
+    },
+    "identity": {
+      "channel_registered": true,
+      "confidence": 52
+    },
+    "intent_id": "INT-S18",
+    "language": {
+      "injection_flags": [],
+      "se_families_total": 5,
+      "se_indicator_families": [
+        "authority_invocation",
+        "control_bypass_request"
+      ],
+      "secrecy_flags": [],
+      "stated_urgency": "MEDIUM"
+    },
+    "produced_at": "2026-09-18T11:04:01.200000+05:30",
+    "replay": null
+  },
+  "timeline": [
+    {
+      "detail": "Arrived on COLLAB_PLATFORM.",
+      "label": "Request received",
+      "latency_ms": 34,
+      "stage": "ingest",
+      "started_at": "2026-09-18T11:04:00+05:30"
+    },
+    {
+      "detail": "hybrid extraction, confidence 92.",
+      "label": "Intent extracted",
+      "latency_ms": 412,
+      "stage": "extract",
+      "started_at": "2026-09-18T11:04:00.034000+05:30"
+    },
+    {
+      "detail": "1 detector(s) abstained.",
+      "label": "Detectors run",
+      "latency_ms": 690,
+      "stage": "detect",
+      "started_at": "2026-09-18T11:04:00.446000+05:30"
+    },
+    {
+      "detail": "6 of 7 dimensions scored, coverage 80%, risk 71.",
+      "label": "Risk fused",
+      "latency_ms": 21,
+      "stage": "fuse",
+      "started_at": "2026-09-18T11:04:01.136000+05:30"
+    },
+    {
+      "detail": "Band BLOCK, decision BLOCK.",
+      "label": "Policy applied",
+      "latency_ms": 8,
+      "stage": "decide",
+      "started_at": "2026-09-18T11:04:01.157000+05:30"
+    },
+    {
+      "detail": "Hash-chained and sealed.",
+      "label": "Recorded in the audit chain",
+      "latency_ms": 12,
+      "stage": "record",
+      "started_at": "2026-09-18T11:04:01.165000+05:30"
+    }
+  ]
+}

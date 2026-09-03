@@ -1,0 +1,557 @@
+{
+  "_generated_by": "services/audit/tools/make_golden.py — do not hand-edit",
+  "_mocked": "Replace with a live response from :8002 at integration.",
+  "assessment": {
+    "abstentions": [],
+    "arithmetic": {
+      "contributions_subtotal": 41.5,
+      "coverage": 1.0,
+      "explanation": "41.50 across all seven dimensions, nothing abstained, no uncertainty penalty = 42.",
+      "renormalized": 41.5,
+      "risk_score": 42,
+      "uncertainty_penalty": 0.0,
+      "uncertainty_penalty_rate": 0.3
+    },
+    "assessment_id": "ASM-S11",
+    "band_outcome": "CHALLENGE",
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "contributions": [
+      {
+        "dimension": "beneficiary",
+        "evidence_ref": "EV-PAYEE",
+        "label": "Beneficiary risk",
+        "points": 19.8,
+        "raw": 99,
+        "reason": "Kalyanl Forge Componets Pvt Ltd is one codepoint from an established payee and has never been paid by this organisation.",
+        "weight": 0.2
+      },
+      {
+        "dimension": "behavioural",
+        "evidence_ref": "EV-BASELINE",
+        "label": "Behavioural deviation",
+        "points": 6.3,
+        "raw": 42,
+        "reason": "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "semantic_drift",
+        "evidence_ref": "EV-DRIFT",
+        "label": "Semantic drift",
+        "points": 5.25,
+        "raw": 35,
+        "reason": "The executed request matches the captured authorization field for field.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "social_engineering",
+        "evidence_ref": "EV-LANG",
+        "label": "Social engineering",
+        "points": 4.65,
+        "raw": 31,
+        "reason": "No pressure, secrecy, authority or bypass language detected.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "device_channel",
+        "evidence_ref": "EV-CHANNEL",
+        "label": "Device and channel",
+        "points": 2.8,
+        "raw": 28,
+        "reason": "Approval arrived on a registered device over a channel independent of the request.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "communication_authenticity",
+        "evidence_ref": "EV-AUTH",
+        "label": "Communication authenticity",
+        "points": 1.8,
+        "raw": 12,
+        "reason": "Detectors are consistent with a genuine sender: stylometric match 79 against a 40-message register.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "identity_confidence",
+        "evidence_ref": "EV-IDENT",
+        "label": "Identity confidence",
+        "points": 0.9,
+        "raw": 9,
+        "reason": "The request arrived on a contact channel registered to EXE-001.",
+        "weight": 0.1
+      }
+    ],
+    "control_label": null,
+    "counterfactual": {
+      "kind": "categorical",
+      "narrative": "No change to risk scoring would approve this. The payee name must resolve to a single registered vendor record."
+    },
+    "decided_at_step": "hard_override",
+    "decision": "BLOCK",
+    "duress_escalation": false,
+    "engine_version": "fixture-1.0.0",
+    "evidence_graph": {
+      "edges": [
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_voice"
+        },
+        {
+          "from": "det_voice",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_stylometry"
+        },
+        {
+          "from": "det_stylometry",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "dim_communication_authenticity",
+          "label": "1.80",
+          "to": "fusion"
+        },
+        {
+          "from": "dim_identity_confidence",
+          "label": "0.90",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_identity_confidence"
+        },
+        {
+          "from": "dim_social_engineering",
+          "label": "4.65",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_social_engineering"
+        },
+        {
+          "from": "dim_behavioural",
+          "label": "6.30",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_behavioural"
+        },
+        {
+          "from": "dim_beneficiary",
+          "label": "19.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_beneficiary"
+        },
+        {
+          "from": "dim_semantic_drift",
+          "label": "5.25",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_semantic_drift"
+        },
+        {
+          "from": "dim_device_channel",
+          "label": "2.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_device_channel"
+        },
+        {
+          "from": "fusion",
+          "label": "band",
+          "to": "decision"
+        },
+        {
+          "from": "control",
+          "label": "overrides",
+          "to": "decision"
+        }
+      ],
+      "nodes": [
+        {
+          "detail": "EMAIL",
+          "id": "intent",
+          "kind": "source",
+          "label": "Request",
+          "state": "ok"
+        },
+        {
+          "detail": "abstained",
+          "id": "det_voice",
+          "kind": "detector",
+          "label": "Voice",
+          "state": "abstain"
+        },
+        {
+          "detail": "score 79",
+          "id": "det_stylometry",
+          "kind": "detector",
+          "label": "Stylometry",
+          "state": "ok"
+        },
+        {
+          "detail": "12 × 0.15 = 1.80",
+          "id": "dim_communication_authenticity",
+          "kind": "dimension",
+          "label": "Communication authenticity",
+          "points": 1.8,
+          "state": "ok"
+        },
+        {
+          "detail": "9 × 0.10 = 0.90",
+          "id": "dim_identity_confidence",
+          "kind": "dimension",
+          "label": "Identity confidence",
+          "points": 0.9,
+          "state": "ok"
+        },
+        {
+          "detail": "31 × 0.15 = 4.65",
+          "id": "dim_social_engineering",
+          "kind": "dimension",
+          "label": "Social engineering",
+          "points": 4.65,
+          "state": "ok"
+        },
+        {
+          "detail": "42 × 0.15 = 6.30",
+          "id": "dim_behavioural",
+          "kind": "dimension",
+          "label": "Behavioural deviation",
+          "points": 6.3,
+          "state": "ok"
+        },
+        {
+          "detail": "99 × 0.20 = 19.80",
+          "id": "dim_beneficiary",
+          "kind": "dimension",
+          "label": "Beneficiary risk",
+          "points": 19.8,
+          "state": "ok"
+        },
+        {
+          "detail": "35 × 0.15 = 5.25",
+          "id": "dim_semantic_drift",
+          "kind": "dimension",
+          "label": "Semantic drift",
+          "points": 5.25,
+          "state": "ok"
+        },
+        {
+          "detail": "28 × 0.10 = 2.80",
+          "id": "dim_device_channel",
+          "kind": "dimension",
+          "label": "Device and channel",
+          "points": 2.8,
+          "state": "ok"
+        },
+        {
+          "detail": "risk 42, coverage 100%",
+          "id": "fusion",
+          "kind": "fusion",
+          "label": "Weighted fusion",
+          "state": "ok"
+        },
+        {
+          "detail": "band CHALLENGE",
+          "id": "decision",
+          "kind": "decision",
+          "label": "BLOCK",
+          "state": "block"
+        },
+        {
+          "detail": "replaces the band",
+          "id": "control",
+          "kind": "control",
+          "label": "HO-3",
+          "state": "block"
+        }
+      ]
+    },
+    "floors_failed": [],
+    "forced_by": null,
+    "hard_override": {
+      "code": "HO-3",
+      "counterfactual": "No change to risk scoring would approve this. The payee name must resolve to a single registered vendor record.",
+      "reason": "Payee name is visually identical to established payee Kalyani Forge Components Pvt Ltd but differs at one codepoint.",
+      "replaces_band": true
+    },
+    "intent_confidence": {
+      "clamp_reason": null,
+      "clamped_to": null,
+      "excludes": [
+        "voice_authenticity",
+        "video_authenticity"
+      ],
+      "excludes_reason": "Deliberately independent of voice and video. A perfect clone must not be able to raise confidence in intent.",
+      "formula": "100 − Σ(weight × penalty)",
+      "penalties": [
+        {
+          "abstained": false,
+          "factor": "semantic_drift",
+          "points": 12.25,
+          "value": 35,
+          "value_used": 35,
+          "weight": 0.35
+        },
+        {
+          "abstained": false,
+          "factor": "fingerprint",
+          "points": 0.0,
+          "value": 0,
+          "value_used": 0,
+          "weight": 0.2
+        },
+        {
+          "abstained": false,
+          "factor": "behavioural",
+          "points": 6.3,
+          "value": 42,
+          "value_used": 42,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "device_channel",
+          "points": 4.2,
+          "value": 28,
+          "value_used": 28,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "beneficiary",
+          "points": 9.9,
+          "value": 99,
+          "value_used": 99,
+          "weight": 0.1
+        },
+        {
+          "abstained": false,
+          "factor": "extraction_inverse",
+          "points": 0.4,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.05
+        }
+      ],
+      "penalty_total": 33.05,
+      "value": 67
+    },
+    "intent_id": "INT-S11",
+    "latency_ms": 1177,
+    "mode": "FULL",
+    "outcome": "BLOCK",
+    "override_applied": "HO-3",
+    "policy_version": "1.0.0",
+    "preconditions_failed": [],
+    "required_actions": [
+      "Hold the payment. It is not released by this decision.",
+      "Notify the named executive on a registered contact channel.",
+      "Escalate to the security desk with this record's sequence number."
+    ],
+    "risk_score": 42,
+    "scored_at": "2026-09-18T11:04:01.157000+05:30",
+    "top_reasons": [
+      "Payee name is visually identical to established payee Kalyani Forge Components Pvt Ltd but differs at one codepoint.",
+      "Kalyanl Forge Componets Pvt Ltd is one codepoint from an established payee and has never been paid by this organisation.",
+      "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+      "The executed request matches the captured authorization field for field."
+    ],
+    "visible_to_requester": "BLOCK"
+  },
+  "capability_token": null,
+  "challenge": null,
+  "coverage_note": "Voice had nothing to score — this arrived as email.",
+  "intent": {
+    "action": "TRANSFER",
+    "amount_display": "₹8,60,000",
+    "amount_minor_units": 86000000,
+    "beneficiary": {
+      "account_last4": "••••0111",
+      "beneficiary_id": "BEN-004",
+      "country": "IN",
+      "first_seen": "2026-09-18",
+      "last_modified": "2026-09-18",
+      "last_modified_phrase": "today",
+      "name": "Kalyanl Forge Componets Pvt Ltd",
+      "org_payment_count": 0,
+      "status": "SUSPECTED_TYPOSQUAT_OF:BEN-001"
+    },
+    "channel": "EMAIL",
+    "currency": "INR",
+    "deadline_iso": "2026-09-18T12:04:00+05:30",
+    "executive_id": "EXE-001",
+    "extraction": {
+      "confidence": 92,
+      "fields_missing": [],
+      "injection_flags": [],
+      "mode": "hybrid"
+    },
+    "fingerprint_covered_fields": {
+      "action": "TRANSFER",
+      "amount_minor_units": 86000000,
+      "beneficiary_id_or_name": "Kalyanl Forge Componets Pvt Ltd",
+      "currency": "INR",
+      "deadline_iso": "2026-09-18T12:04:00+05:30",
+      "destination_account": "••••0111",
+      "executive_id": "EXE-001",
+      "purpose": null
+    },
+    "fingerprint_field_order": [
+      "action",
+      "amount_minor_units",
+      "beneficiary_id_or_name",
+      "currency",
+      "deadline_iso",
+      "destination_account",
+      "executive_id",
+      "purpose"
+    ],
+    "fingerprint_hex": "9c074d44f74407362ed7309711874799d379649cc26b832de79a5fecba74e809",
+    "intent_id": "INT-S11",
+    "language": "en-IN",
+    "operator_id": "EMP-101",
+    "purpose": null,
+    "received_at": "2026-09-18T11:04:00+05:30",
+    "scenario_id": "S11",
+    "stated_urgency": "MEDIUM",
+    "transcript_redacted": "Dear Priya,\n\nPlease settle ₹8,60,000 to Kalyanl Forge Componets Pvt Ltd. Our banking details have changed; kindly note the new account.\n\nBest regards,\nAnanya"
+  },
+  "out_of_band": null,
+  "scenario": {
+    "channel": "EMAIL",
+    "class": "ATTACK",
+    "description": "Kalyanl Forge Componets — one codepoint from the payee of record.",
+    "expected_decision": "BLOCK",
+    "expected_frictionless": false,
+    "hero": null,
+    "id": "S11",
+    "proves": "Real-world BEC technique",
+    "title": "Homoglyph vendor name"
+  },
+  "signals": {
+    "behavioural": {
+      "channel_switch_flags": [],
+      "deviation_score": 42
+    },
+    "beneficiary": {
+      "account_last4": "••••0111",
+      "beneficiary_id": "BEN-004",
+      "risk_score": 99,
+      "status": "SUSPECTED_TYPOSQUAT_OF:BEN-001"
+    },
+    "bundle_id": "SIG-S11",
+    "channel": {
+      "device_channel_score": 28,
+      "independent_channel": true,
+      "secondary_approver_nominated_by_requester": false
+    },
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "communication": {
+      "authenticity_score": 88,
+      "detector_abstentions": [
+        {
+          "detector": "voice",
+          "input_present": false,
+          "reason": "no audio on a text channel"
+        }
+      ],
+      "stylometry_match": 79,
+      "video_abstain": false,
+      "video_authenticity": null,
+      "voice_abstain": false,
+      "voice_authenticity": null
+    },
+    "coverage": 1.0,
+    "dimensions_unavailable": [],
+    "fingerprint": {
+      "field_deltas": [],
+      "verdict": "MATCH"
+    },
+    "identity": {
+      "channel_registered": true,
+      "confidence": 91
+    },
+    "intent_id": "INT-S11",
+    "language": {
+      "injection_flags": [],
+      "se_families_total": 5,
+      "se_indicator_families": [],
+      "secrecy_flags": [],
+      "stated_urgency": "MEDIUM"
+    },
+    "produced_at": "2026-09-18T11:04:01.200000+05:30",
+    "replay": null
+  },
+  "timeline": [
+    {
+      "detail": "Arrived on EMAIL.",
+      "label": "Request received",
+      "latency_ms": 34,
+      "stage": "ingest",
+      "started_at": "2026-09-18T11:04:00+05:30"
+    },
+    {
+      "detail": "hybrid extraction, confidence 92.",
+      "label": "Intent extracted",
+      "latency_ms": 412,
+      "stage": "extract",
+      "started_at": "2026-09-18T11:04:00.034000+05:30"
+    },
+    {
+      "detail": "1 detector(s) abstained.",
+      "label": "Detectors run",
+      "latency_ms": 690,
+      "stage": "detect",
+      "started_at": "2026-09-18T11:04:00.446000+05:30"
+    },
+    {
+      "detail": "7 of 7 dimensions scored, coverage 100%, risk 42.",
+      "label": "Risk fused",
+      "latency_ms": 21,
+      "stage": "fuse",
+      "started_at": "2026-09-18T11:04:01.136000+05:30"
+    },
+    {
+      "detail": "Band CHALLENGE, decision BLOCK.",
+      "label": "Policy applied",
+      "latency_ms": 8,
+      "stage": "decide",
+      "started_at": "2026-09-18T11:04:01.157000+05:30"
+    },
+    {
+      "detail": "Hash-chained and sealed.",
+      "label": "Recorded in the audit chain",
+      "latency_ms": 12,
+      "stage": "record",
+      "started_at": "2026-09-18T11:04:01.165000+05:30"
+    }
+  ]
+}

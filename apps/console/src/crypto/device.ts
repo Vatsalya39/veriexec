@@ -61,7 +61,7 @@ export function hexToBytes(hex: string): Uint8Array {
 /** Device fingerprint: first 8 hex of SHA-256 over the SPKI DER bytes. Display only. */
 export async function deviceThumbprint(kp: CryptoKeyPair): Promise<string> {
   const spki = new Uint8Array(await crypto.subtle.exportKey("spki", kp.publicKey));
-  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", spki));
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", spki as unknown as BufferSource));
   return b16(digest).slice(0, 8);
 }
 
@@ -75,7 +75,7 @@ export async function signFingerprint(kp: CryptoKeyPair, fingerprintHex: string)
   requireSecureContext();
   const digest = hexToBytes(fingerprintHex);     // 32 bytes, NOT the hex string
   if (digest.length !== 32) throw new Error("fingerprint must be 32 bytes");
-  const raw = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, kp.privateKey, digest);
+  const raw = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, kp.privateKey, digest as unknown as BufferSource);
   const sig = new Uint8Array(raw);
   if (sig.length !== 64) throw new Error(`ECDSA P-256 signature must be 64 bytes, got ${sig.length}`);
   return b64url(sig);                           // 64-byte r||s, base64url, no padding

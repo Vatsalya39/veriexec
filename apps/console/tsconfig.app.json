@@ -5,6 +5,10 @@
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
     "types": ["vite/client", "vitest/globals"],
+    "resolveJsonModule": true,
+    "paths": {
+      "@contracts/*": ["../../contracts/*"]
+    },
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 

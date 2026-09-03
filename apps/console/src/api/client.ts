@@ -1,15 +1,15 @@
-/**
- * Typed fetch wrappers, one per service. §24
+﻿/**
+ * Typed fetch wrappers, one per service. Â§24
  *
- * Rules (§24.2, made structural here): a 3-second timeout; one retry only on GET; a typed
- * error state that carries a stable machine code — never a partial result rendered as
+ * Rules (Â§24.2, made structural here): a 3-second timeout; one retry only on GET; a typed
+ * error state that carries a stable machine code â€” never a partial result rendered as
  * complete. A dashboard that quietly renders `0` for a missing contribution is the exact
- * "unavailable ≠ clean" failure the whole project argues against, committed in the
+ * "unavailable â‰  clean" failure the whole project argues against, committed in the
  * presentation layer.
  */
 
 import type {
-  AskResult, AuditRecord, BenchReport, BenchRow, CanaryHistory, CanaryRun,
+  AskResult, AuditRecord, BenchReport, CanaryHistory, CanaryRun,
   HealthResult, ScenarioEnvelope, VerifyResult,
 } from "./types";
 
@@ -61,7 +61,7 @@ async function call<T>(
   } catch (err) {
     const apiErr = err as ApiError;
     if (method === "GET" && opts.retry !== false && apiErr.code !== "HTTP_") {
-      return attempt(); // one retry, GET only (§24.2)
+      return attempt(); // one retry, GET only (Â§24.2)
     }
     throw err;
   }
@@ -89,8 +89,8 @@ export async function listScenarios(): Promise<ScenarioSummary[]> {
 
 /**
  * One scenario envelope. Tries the live services first (A for samples, B for assess);
- * falls back to `contracts/golden/` with a visible "cached fixture" badge — never a blank
- * screen in front of a judge (00_SHARED_CONTEXT §14).
+ * falls back to `contracts/golden/` with a visible "cached fixture" badge â€” never a blank
+ * screen in front of a judge (00_SHARED_CONTEXT Â§14).
  */
 export async function loadScenario(id: string): Promise<{ data: ScenarioEnvelope; source: "live" | "fixture" }> {
   try {

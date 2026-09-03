@@ -1,0 +1,594 @@
+{
+  "_generated_by": "services/audit/tools/make_golden.py — do not hand-edit",
+  "_mocked": "Replace with a live response from :8002 at integration.",
+  "assessment": {
+    "abstentions": [
+      {
+        "contributed_points": 0.0,
+        "dimension": "communication_authenticity",
+        "label": "Communication authenticity",
+        "reason": "No authenticity evidence was contributed: voice — 3.1 s utterance below the 6 s scoring floor; voice_ensemble — SNR 4 dB, below the 12 dB floor; video — no video on a phone channel.",
+        "scored_as_clean": false,
+        "weight": 0.15
+      },
+      {
+        "contributed_points": 0.0,
+        "dimension": "identity_confidence",
+        "label": "Identity confidence",
+        "reason": "The only identity evidence on this channel was the utterance itself, and the utterance could not be scored.",
+        "scored_as_clean": false,
+        "weight": 0.1
+      }
+    ],
+    "arithmetic": {
+      "contributions_subtotal": 9.7,
+      "coverage": 0.75,
+      "explanation": "9.70 ÷ 0.75 coverage = 12.93, plus a 7.50-point uncertainty penalty for what could not be measured = 20.",
+      "renormalized": 12.93,
+      "risk_score": 20,
+      "uncertainty_penalty": 7.5,
+      "uncertainty_penalty_rate": 0.3
+    },
+    "assessment_id": "ASM-S15",
+    "band_outcome": "APPROVE",
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "contributions": [
+      {
+        "dimension": "behavioural",
+        "evidence_ref": "EV-BASELINE",
+        "label": "Behavioural deviation",
+        "points": 3.3,
+        "raw": 22,
+        "reason": "Amount, hour, channel and payee all fall inside this executive's established pattern.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "social_engineering",
+        "evidence_ref": "EV-LANG",
+        "label": "Social engineering",
+        "points": 2.1,
+        "raw": 14,
+        "reason": "No pressure, secrecy, authority or bypass language detected.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "device_channel",
+        "evidence_ref": "EV-CHANNEL",
+        "label": "Device and channel",
+        "points": 1.8,
+        "raw": 18,
+        "reason": "Approval arrived on a registered device over a channel independent of the request.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "beneficiary",
+        "evidence_ref": "EV-PAYEE",
+        "label": "Beneficiary risk",
+        "points": 1.6,
+        "raw": 8,
+        "reason": "Sundaram Freight Services is an established payee with 57 prior payments and no changes to its account record since 2024-11-20.",
+        "weight": 0.2
+      },
+      {
+        "dimension": "semantic_drift",
+        "evidence_ref": "EV-DRIFT",
+        "label": "Semantic drift",
+        "points": 0.9,
+        "raw": 6,
+        "reason": "The executed request matches the captured authorization field for field.",
+        "weight": 0.15
+      }
+    ],
+    "control_label": null,
+    "counterfactual": {
+      "kind": "categorical",
+      "narrative": "The risk score was already inside the approve band; lowering it further changes nothing. A scoreable sample of the modality that abstained is what is missing."
+    },
+    "decided_at_step": "abstention_floor",
+    "decision": "CHALLENGE",
+    "duress_escalation": false,
+    "engine_version": "fixture-1.0.0",
+    "evidence_graph": {
+      "edges": [
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_voice"
+        },
+        {
+          "from": "det_voice",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_video"
+        },
+        {
+          "from": "det_video",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "dim_communication_authenticity",
+          "label": "abstained",
+          "to": "fusion"
+        },
+        {
+          "from": "dim_identity_confidence",
+          "label": "abstained",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_identity_confidence"
+        },
+        {
+          "from": "dim_social_engineering",
+          "label": "2.10",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_social_engineering"
+        },
+        {
+          "from": "dim_behavioural",
+          "label": "3.30",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_behavioural"
+        },
+        {
+          "from": "dim_beneficiary",
+          "label": "1.60",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_beneficiary"
+        },
+        {
+          "from": "dim_semantic_drift",
+          "label": "0.90",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_semantic_drift"
+        },
+        {
+          "from": "dim_device_channel",
+          "label": "1.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_device_channel"
+        },
+        {
+          "from": "fusion",
+          "label": "band",
+          "to": "decision"
+        },
+        {
+          "from": "control",
+          "label": "overrides",
+          "to": "decision"
+        }
+      ],
+      "nodes": [
+        {
+          "detail": "PHONE",
+          "id": "intent",
+          "kind": "source",
+          "label": "Request",
+          "state": "ok"
+        },
+        {
+          "detail": "abstained",
+          "id": "det_voice",
+          "kind": "detector",
+          "label": "Voice",
+          "state": "abstain"
+        },
+        {
+          "detail": "abstained",
+          "id": "det_video",
+          "kind": "detector",
+          "label": "Video",
+          "state": "abstain"
+        },
+        {
+          "detail": "not evaluated",
+          "id": "dim_communication_authenticity",
+          "kind": "dimension",
+          "label": "Communication authenticity",
+          "points": null,
+          "state": "abstain"
+        },
+        {
+          "detail": "not evaluated",
+          "id": "dim_identity_confidence",
+          "kind": "dimension",
+          "label": "Identity confidence",
+          "points": null,
+          "state": "abstain"
+        },
+        {
+          "detail": "14 × 0.15 = 2.10",
+          "id": "dim_social_engineering",
+          "kind": "dimension",
+          "label": "Social engineering",
+          "points": 2.1,
+          "state": "ok"
+        },
+        {
+          "detail": "22 × 0.15 = 3.30",
+          "id": "dim_behavioural",
+          "kind": "dimension",
+          "label": "Behavioural deviation",
+          "points": 3.3,
+          "state": "ok"
+        },
+        {
+          "detail": "8 × 0.20 = 1.60",
+          "id": "dim_beneficiary",
+          "kind": "dimension",
+          "label": "Beneficiary risk",
+          "points": 1.6,
+          "state": "ok"
+        },
+        {
+          "detail": "6 × 0.15 = 0.90",
+          "id": "dim_semantic_drift",
+          "kind": "dimension",
+          "label": "Semantic drift",
+          "points": 0.9,
+          "state": "ok"
+        },
+        {
+          "detail": "18 × 0.10 = 1.80",
+          "id": "dim_device_channel",
+          "kind": "dimension",
+          "label": "Device and channel",
+          "points": 1.8,
+          "state": "ok"
+        },
+        {
+          "detail": "risk 20, coverage 75%",
+          "id": "fusion",
+          "kind": "fusion",
+          "label": "Weighted fusion",
+          "state": "ok"
+        },
+        {
+          "detail": "band APPROVE",
+          "id": "decision",
+          "kind": "decision",
+          "label": "CHALLENGE",
+          "state": "challenge"
+        },
+        {
+          "detail": "raises the floor",
+          "id": "control",
+          "kind": "control",
+          "label": "FC-2",
+          "state": "block"
+        }
+      ]
+    },
+    "floors_failed": [
+      "FC-2"
+    ],
+    "forced_by": {
+      "code": "FC-2",
+      "reason": "A detector that received input could not score it, so no authenticity evidence was contributed. Unavailable is not clean.",
+      "step": "abstention_floor"
+    },
+    "hard_override": null,
+    "intent_confidence": {
+      "clamp_reason": null,
+      "clamped_to": null,
+      "excludes": [
+        "voice_authenticity",
+        "video_authenticity"
+      ],
+      "excludes_reason": "Deliberately independent of voice and video. A perfect clone must not be able to raise confidence in intent.",
+      "formula": "100 − Σ(weight × penalty)",
+      "penalties": [
+        {
+          "abstained": false,
+          "factor": "semantic_drift",
+          "points": 2.1,
+          "value": 6,
+          "value_used": 6,
+          "weight": 0.35
+        },
+        {
+          "abstained": false,
+          "factor": "fingerprint",
+          "points": 0.0,
+          "value": 0,
+          "value_used": 0,
+          "weight": 0.2
+        },
+        {
+          "abstained": false,
+          "factor": "behavioural",
+          "points": 3.3,
+          "value": 22,
+          "value_used": 22,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "device_channel",
+          "points": 2.7,
+          "value": 18,
+          "value_used": 18,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "beneficiary",
+          "points": 0.8,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.1
+        },
+        {
+          "abstained": false,
+          "factor": "extraction_inverse",
+          "points": 0.4,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.05
+        }
+      ],
+      "penalty_total": 9.3,
+      "value": 91
+    },
+    "intent_id": "INT-S15",
+    "latency_ms": 1177,
+    "mode": "FULL",
+    "outcome": "CHALLENGE",
+    "override_applied": null,
+    "policy_version": "1.0.0",
+    "preconditions_failed": [],
+    "required_actions": [
+      "Do not release the payment yet.",
+      "Complete out-of-band verification with the executive on a registered channel different from the one the request arrived on.",
+      "The verification code must be read by the operator and confirmed by the executive — never the other way round."
+    ],
+    "risk_score": 20,
+    "scored_at": "2026-09-18T11:04:01.157000+05:30",
+    "top_reasons": [
+      "A detector that received input could not score it, so no authenticity evidence was contributed. Unavailable is not clean.",
+      "Amount, hour, channel and payee all fall inside this executive's established pattern.",
+      "No pressure, secrecy, authority or bypass language detected.",
+      "Approval arrived on a registered device over a channel independent of the request."
+    ],
+    "visible_to_requester": "CHALLENGE"
+  },
+  "capability_token": null,
+  "challenge": {
+    "_answer_is_never_published": true,
+    "answer_hmac": "24bc51895989947af2ae0b2bb41ccab6ee3e47fb44312245d5fb5b2e103747b4",
+    "attempts_allowed": 3,
+    "attempts_used": 0,
+    "challenge_id": "CHL-S15",
+    "cooldown_seconds": 0,
+    "expires_at": "2026-09-18T11:09:00+05:30",
+    "kind": "AMOUNT_RECALL",
+    "nonce": "b67cd65eda019802",
+    "prompt": "What amount did you approve on this call?"
+  },
+  "coverage_note": "Evidence coverage 75%: the voice detectors abstained on a 3-second, 4 dB clip and contributed no authenticity evidence.",
+  "intent": {
+    "action": "TRANSFER",
+    "amount_display": "₹3,00,000",
+    "amount_minor_units": 30000000,
+    "beneficiary": {
+      "account_last4": "••••6655",
+      "beneficiary_id": "BEN-002",
+      "country": "IN",
+      "first_seen": "2021-08-03",
+      "last_modified": "2024-11-20",
+      "last_modified_phrase": "on 2024-11-20",
+      "name": "Sundaram Freight Services",
+      "org_payment_count": 57,
+      "status": "TRUSTED"
+    },
+    "channel": "PHONE",
+    "currency": "INR",
+    "deadline_iso": "2026-09-18T12:04:00+05:30",
+    "executive_id": "EXE-001",
+    "extraction": {
+      "confidence": 92,
+      "fields_missing": [],
+      "injection_flags": [],
+      "mode": "hybrid"
+    },
+    "fingerprint_covered_fields": {
+      "action": "TRANSFER",
+      "amount_minor_units": 30000000,
+      "beneficiary_id_or_name": "Sundaram Freight Services",
+      "currency": "INR",
+      "deadline_iso": "2026-09-18T12:04:00+05:30",
+      "destination_account": "••••6655",
+      "executive_id": "EXE-001",
+      "purpose": null
+    },
+    "fingerprint_field_order": [
+      "action",
+      "amount_minor_units",
+      "beneficiary_id_or_name",
+      "currency",
+      "deadline_iso",
+      "destination_account",
+      "executive_id",
+      "purpose"
+    ],
+    "fingerprint_hex": "2da70de3c99c9bf85b57905885556e6cf8d630e07a053517da15fa35c4db6509",
+    "intent_id": "INT-S15",
+    "language": "en-IN",
+    "operator_id": "EMP-102",
+    "purpose": null,
+    "received_at": "2026-09-18T11:04:00+05:30",
+    "scenario_id": "S15",
+    "stated_urgency": "MEDIUM",
+    "transcript_redacted": "[3.1 s, 4 dB] '...transfer three lakh to Sundaram, thanks' [call drops]"
+  },
+  "out_of_band": {
+    "channel_must_differ_from": "PHONE",
+    "code_bits": 30,
+    "confirmed_by": "executive",
+    "derived_from": "HMAC(fingerprint_hex || nonce)",
+    "expires_at": "2026-09-18T11:09:00+05:30",
+    "nonce": "6b8f63528448cbd2",
+    "oob_id": "OOB-S15",
+    "read_by": "operator",
+    "registered_contacts": [
+      "+91 98xxx xx4402"
+    ],
+    "verification_code": "RNABT3"
+  },
+  "scenario": {
+    "channel": "PHONE",
+    "class": "LEGIT",
+    "description": "Nothing scoreable in the audio. Coverage floor forces a challenge.",
+    "expected_decision": "CHALLENGE",
+    "expected_frictionless": false,
+    "hero": 3,
+    "id": "S15",
+    "proves": "Unavailable is not clean",
+    "title": "Three-second noisy clip — detector abstains"
+  },
+  "signals": {
+    "behavioural": {
+      "channel_switch_flags": [],
+      "deviation_score": 22
+    },
+    "beneficiary": {
+      "account_last4": "••••6655",
+      "beneficiary_id": "BEN-002",
+      "risk_score": 8,
+      "status": "TRUSTED"
+    },
+    "bundle_id": "SIG-S15",
+    "channel": {
+      "device_channel_score": 18,
+      "independent_channel": true,
+      "secondary_approver_nominated_by_requester": false
+    },
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "communication": {
+      "authenticity_score": null,
+      "detector_abstentions": [
+        {
+          "detector": "voice",
+          "input_present": true,
+          "reason": "3.1 s utterance below the 6 s scoring floor"
+        },
+        {
+          "detector": "voice_ensemble",
+          "input_present": true,
+          "reason": "SNR 4 dB, below the 12 dB floor"
+        },
+        {
+          "detector": "video",
+          "input_present": true,
+          "reason": "no video on a phone channel"
+        }
+      ],
+      "stylometry_match": null,
+      "video_abstain": true,
+      "video_authenticity": null,
+      "voice_abstain": true,
+      "voice_authenticity": null
+    },
+    "coverage": 0.75,
+    "dimensions_unavailable": [
+      "communication_authenticity",
+      "identity_confidence"
+    ],
+    "fingerprint": {
+      "field_deltas": [],
+      "verdict": "MATCH"
+    },
+    "identity": {
+      "channel_registered": true,
+      "confidence": null
+    },
+    "intent_id": "INT-S15",
+    "language": {
+      "injection_flags": [],
+      "se_families_total": 5,
+      "se_indicator_families": [],
+      "secrecy_flags": [],
+      "stated_urgency": "MEDIUM"
+    },
+    "produced_at": "2026-09-18T11:04:01.200000+05:30",
+    "replay": null
+  },
+  "timeline": [
+    {
+      "detail": "Arrived on PHONE.",
+      "label": "Request received",
+      "latency_ms": 34,
+      "stage": "ingest",
+      "started_at": "2026-09-18T11:04:00+05:30"
+    },
+    {
+      "detail": "hybrid extraction, confidence 92.",
+      "label": "Intent extracted",
+      "latency_ms": 412,
+      "stage": "extract",
+      "started_at": "2026-09-18T11:04:00.034000+05:30"
+    },
+    {
+      "detail": "3 detector(s) abstained.",
+      "label": "Detectors run",
+      "latency_ms": 690,
+      "stage": "detect",
+      "started_at": "2026-09-18T11:04:00.446000+05:30"
+    },
+    {
+      "detail": "5 of 7 dimensions scored, coverage 75%, risk 20.",
+      "label": "Risk fused",
+      "latency_ms": 21,
+      "stage": "fuse",
+      "started_at": "2026-09-18T11:04:01.136000+05:30"
+    },
+    {
+      "detail": "Band APPROVE, decision CHALLENGE.",
+      "label": "Policy applied",
+      "latency_ms": 8,
+      "stage": "decide",
+      "started_at": "2026-09-18T11:04:01.157000+05:30"
+    },
+    {
+      "detail": "Hash-chained and sealed.",
+      "label": "Recorded in the audit chain",
+      "latency_ms": 12,
+      "stage": "record",
+      "started_at": "2026-09-18T11:04:01.165000+05:30"
+    }
+  ]
+}

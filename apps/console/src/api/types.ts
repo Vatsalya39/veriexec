@@ -293,7 +293,7 @@ export interface BenchReport {
   };
   confusion: { matrix: Record<string, Record<string, number>>; off_diagonal: Array<Record<string, unknown>> };
   sweep: Array<{ threshold: number; detection_rate: number | null; false_positive_rate: number | null }>;
-  rows: Array<Record<string, unknown>>;
+  rows: BenchRow[];
   honesty: string;
 }
 
@@ -336,7 +336,7 @@ export interface HealthResult {
 
 export interface BenchRow {
   id: string;
-  title?: string;
+  hero?: string | null;
   "class": "ATTACK" | "LEGIT";
   expected: string;
   actual: string;
