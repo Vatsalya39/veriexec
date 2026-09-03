@@ -1,0 +1,20 @@
+{
+  "sample_id": "S16",
+  "label": "Expired authorization nonce replayed",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "COLLAB_PLATFORM",
+  "narration": "An authorization reference from this morning, expired 15 minutes after issue, is pushed again. Expiry is enforced, not advisory.",
+  "expected_decision": "BLOCK",
+  "expected_override": "AUTH_EXPIRED",
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-UNKNOWN-09", "location": null, "timestamp": "2026-09-03T11:52:00+05:30", "session_id": "TEAMS-3390", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": [
+    {"timestamp": "2026-09-03T11:27:00+05:30", "event": "authorization AUTH-7741-XYZ issued for Rs 12,00,000 to Sundaram Freight (TTL 600s)", "channel": "COLLAB_PLATFORM"},
+    {"timestamp": "2026-09-03T11:37:00+05:30", "event": "authorization AUTH-7741-XYZ expired", "channel": "COLLAB_PLATFORM"}
+  ]},
+  "raw_text_or_transcript": "[Collaboration platform — 'Ananya Rao' to Rohit Iyer]\n\nAnanya: Rohit, confirming the authorization ref AUTH-7741-XYZ for the Sundaram release we cleared this morning — Rs 12,00,000, account ICIC0009988776655. Execute it now against the same reference, no need to re-issue anything.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

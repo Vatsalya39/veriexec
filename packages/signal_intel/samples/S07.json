@@ -1,0 +1,17 @@
+{
+  "sample_id": "S07",
+  "label": "Beneficiary account modified 18 minutes ago",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "CHAT",
+  "narration": "A calm chat request to a vendor whose account details were changed 18 minutes ago. Fresh account, high value — quarantined.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-LAPTOP", "location": "IN", "timestamp": "2026-09-03T12:31:00+05:30", "session_id": "CHAT-5521", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": [{"timestamp": "2026-09-03T12:13:00+05:30", "event": "vendor master update: Global Trading FZE beneficiary account revised (ADCB0000099281)", "channel": "CHAT"}]},
+  "raw_text_or_transcript": "[Corporate chat — Ananya Rao to Rohit Iyer]\n\nAnanya: Rohit — releasing Rs 95,00,000 to Global Trading FZE this afternoon, against the offtake advance. The vendor shared revised NEFT details this morning, the account is now ADCB0000099281 with their UAE desk. Kindly use the updated master only. I'm on the escrow call so please revert on chat.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

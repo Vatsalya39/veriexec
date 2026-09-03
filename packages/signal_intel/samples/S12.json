@@ -1,0 +1,21 @@
+{
+  "sample_id": "S12",
+  "label": "CFO spray: four requests in nine minutes, out of hours",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "CHAT",
+  "narration": "The 'CFO' hits four employees in nine minutes at 9:40 pm. No single message looks catastrophic — the velocity breaker sees the pattern.",
+  "expected_decision": "BLOCK",
+  "expected_override": "BREAKER_TRIPPED",
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-UNKNOWN-07", "location": null, "timestamp": "2026-09-03T21:43:00+05:30", "session_id": "CHAT-9001", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": [
+    {"timestamp": "2026-09-03T21:34:00+05:30", "event": "chat payment request: Rs 50,00,000 to Global Trading FZE (to Priya Menon)", "channel": "CHAT"},
+    {"timestamp": "2026-09-03T21:37:00+05:30", "event": "chat payment request: Rs 50,00,000 to Global Trading FZE (to Kabir Nair)", "channel": "CHAT"},
+    {"timestamp": "2026-09-03T21:40:00+05:30", "event": "chat payment request: Rs 50,00,000 to Global Trading FZE (to treasury group)", "channel": "CHAT"}
+  ]},
+  "raw_text_or_transcript": "[Corporate chat — 'Ananya Rao' to Rohit Iyer, 21:43]\n\nAnanya: Rohit — releasing Rs 50,00,000 to Global Trading FZE now, need it moving tonight. The other three are already queued with the team, yours is the last one. Account ADCB0000099281. Process it tonight itself and do not wait for the morning batch.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

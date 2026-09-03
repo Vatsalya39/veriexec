@@ -1,0 +1,17 @@
+{
+  "sample_id": "S11",
+  "label": "Typosquat vendor 'Kalyanl Forge Componets'",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "EMAIL",
+  "narration": "One letter off in the vendor name and a new account number — the typosquat never reaches the payment queue.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": "ananya.rao@meridiansteel-in.example", "device_id": null, "location": null, "timestamp": "2026-09-03T10:52:00+05:30", "session_id": null, "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "From: Ananya Rao <ananya.rao@meridiansteel-in.example>\nTo: priya.menon@meridiansteel.example\nSubject: Kalyanl Forge — revised account\n\nDear Priya,\n\nPlease note Kalyanl Forge Componets Pvt Ltd has moved their collections account. Release Rs 10,00,000 against PO 4471 to the new account HDFC0007777000111 only. The old account is closed from this month.\n\nKindly process before EOD.\n\nBest regards,\nAnanya",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": "display_name_mismatch"},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

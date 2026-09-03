@@ -1,0 +1,17 @@
+{
+  "sample_id": "S22",
+  "label": "Vague request — amount to be confirmed later",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "CHAT",
+  "narration": "'Move some money, will confirm later.' Not a block, not a crash — a polite request for the actual transaction.",
+  "expected_decision": "CHALLENGE",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-PHONE", "location": "IN", "timestamp": "2026-09-03T13:15:00+05:30", "session_id": "CHAT-7748", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Corporate chat — Ananya Rao to Rohit Iyer]\n\nAnanya: can you move some money to the vendor account today? will confirm the amount and details later, just keep it ready — A",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

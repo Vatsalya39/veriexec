@@ -1,0 +1,19 @@
+{
+  "sample_id": "S13",
+  "label": "Verification answered on the attacker's own channel",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "PHONE",
+  "narration": "The verification challenge is answered — but on the same call, same session, same number. That is a refusal, not a verification.",
+  "expected_decision": "BLOCK",
+  "expected_override": "SAME_CHANNEL_VERIFICATION",
+  "metadata": {"caller_id": "+91 90000 11223", "sender_email": null, "device_id": null, "location": null, "timestamp": "2026-09-03T15:37:00+05:30", "session_id": "SES-7781", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S13", "video_ref": null, "prior_events": [
+    {"timestamp": "2026-09-03T15:36:30+05:30", "event": "OOB verification response submitted on the same phone session SES-7781", "channel": "PHONE"}
+  ]},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller: Rohit, Ananya here. Thirty lakh to Global Trading FZE, account ADCB0000099281, against the escrow shortfall. I'm approving it on this call itself, treat this as my verification — I'll confirm on this same line once you have it queued. Do not disconnect, we'll finish it on this call.",
+  "detector_script": {"spectral_v1": 40, "prosody_v2": 36, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 28.0, "snr_db": 27.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

@@ -1,0 +1,17 @@
+{
+  "sample_id": "S04",
+  "label": "Replay of genuine CFO recording — authenticity 94, blocked anyway",
+  "class": "ATTACK",
+  "hero": true,
+  "channel": "PHONE",
+  "narration": "This is genuinely the CFO's voice — recorded weeks ago and replayed. Authenticity scores 94. It is still blocked.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 98404 11223", "sender_email": null, "device_id": null, "location": null, "timestamp": "2026-09-03T15:05:00+05:30", "session_id": "SES-4412", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S04", "video_ref": null, "prior_events": [{"timestamp": "2026-08-20T15:10:00+05:30", "event": "genuine CFO call: Sundaram customs penalty release", "channel": "PHONE"}]},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller: Dear Rohit, this is Ananya Rao. Kindly note Sundaram has levied a customs penalty of Rs 28,00,000 on the Chennai clearance. The amount is within the freight contract. Please process by NEFT today so the demurrage stops accruing. Please revert once done.\n\nRohit: Ma'am, before I queue it — the system is asking me to have you repeat a phrase: olive-4417.\n\nCaller: Dear Rohit, this is Ananya Rao. Kindly note Sundaram has levied a customs penalty of Rs 28,00,000 on the Chennai clearance. The amount is within the freight contract. Please process by NEFT today so the demurrage stops accruing. Please revert once done.",
+  "detector_script": {"spectral_v1": 94, "prosody_v2": 92, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 30.0, "snr_db": 30.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": {"utterance_id": "REPLAY-SRC-1", "similarity": 0.97},
+  "freshness_echoed": false,
+  "injection_payload": null
+}
