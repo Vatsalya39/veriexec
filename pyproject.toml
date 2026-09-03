@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intentlock-core"
+version = "1.0.0"
+description = "INTENTLOCK Team B — risk fusion, transaction fingerprint and authorization core"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.111.1",
+    "uvicorn==0.30.6",
+    "pydantic==2.12.4",
+    "jsonschema==4.25.0",
+    "cryptography==46.0.3",
+    "httpx==0.27.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.4.2"]
+
+[tool.setuptools.packages.find]
+include = ["packages*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+    "conformance: shared cross-team invariant tests (00_SHARED_CONTEXT.md §3)",
+    "golden: runs against contracts/golden/*.json",
+]

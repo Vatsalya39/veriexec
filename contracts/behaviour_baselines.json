@@ -1,0 +1,78 @@
+{
+  "_note": "Behavioural baselines, GENERATED from contracts/personas.json (00_SHARED_CONTEXT.md §7 says baselines derive from the persona registry). All money is INTEGER MINOR UNITS (paise) — never a float, never rupees. Included in policy_hash(), so any edit bumps the policy hash by design.",
+  "_mock": "MOCKED — replace with a real ERP / treasury payment-history extract in production. sample_count is the honest number of observations behind each baseline; below MIN_SAMPLE_COUNT the scorer ABSTAINS rather than returning a confident 0.",
+  "history_window_days": 365,
+  "public_holidays_ist_mmdd": ["01-26", "08-15", "10-02"],
+  "baselines": {
+    "EXE-001": {
+      "median_amount_minor_units": 80000000,
+      "p95_amount_minor_units": 450000000,
+      "max_amount_minor_units": 620000000,
+      "typical_hours_ist": [9, 19],
+      "typical_days": [1, 2, 3, 4, 5],
+      "known_beneficiaries": ["BEN-001", "BEN-002", "BEN-005"],
+      "typical_channels": ["email", "console", "voice_call"],
+      "median_approvals_per_week": 6,
+      "median_lead_time_minutes": 240,
+      "initiates_payments_pct": 41,
+      "history_window_days": 365,
+      "sample_count": 142
+    },
+    "EXE-002": {
+      "median_amount_minor_units": 25000000,
+      "p95_amount_minor_units": 120000000,
+      "max_amount_minor_units": 180000000,
+      "typical_hours_ist": [9, 20],
+      "typical_days": [1, 2, 3, 4, 5],
+      "known_beneficiaries": ["BEN-002", "BEN-006"],
+      "typical_channels": ["voice_call", "console"],
+      "median_approvals_per_week": 1,
+      "median_lead_time_minutes": 480,
+      "initiates_payments_pct": 3,
+      "history_window_days": 365,
+      "sample_count": 26
+    },
+    "EMP-101": {
+      "median_amount_minor_units": 18000000,
+      "p95_amount_minor_units": 90000000,
+      "max_amount_minor_units": 140000000,
+      "typical_hours_ist": [9, 18],
+      "typical_days": [1, 2, 3, 4, 5],
+      "known_beneficiaries": ["BEN-001", "BEN-002", "BEN-007"],
+      "typical_channels": ["email", "console"],
+      "median_approvals_per_week": 4,
+      "median_lead_time_minutes": 180,
+      "initiates_payments_pct": 88,
+      "history_window_days": 365,
+      "sample_count": 63
+    },
+    "EMP-102": {
+      "median_amount_minor_units": 25000000,
+      "p95_amount_minor_units": 180000000,
+      "max_amount_minor_units": 240000000,
+      "typical_hours_ist": [9, 18],
+      "typical_days": [1, 2, 3, 4, 5],
+      "known_beneficiaries": ["BEN-005", "BEN-002"],
+      "typical_channels": ["console", "email"],
+      "median_approvals_per_week": 3,
+      "median_lead_time_minutes": 1440,
+      "initiates_payments_pct": 95,
+      "history_window_days": 365,
+      "sample_count": 96
+    },
+    "EMP-103": {
+      "median_amount_minor_units": 9000000,
+      "p95_amount_minor_units": 42000000,
+      "max_amount_minor_units": 60000000,
+      "typical_hours_ist": [10, 18],
+      "typical_days": [1, 2, 3, 4, 5],
+      "known_beneficiaries": ["BEN-007"],
+      "typical_channels": ["whatsapp_text", "console"],
+      "median_approvals_per_week": 1,
+      "median_lead_time_minutes": 120,
+      "initiates_payments_pct": 74,
+      "history_window_days": 365,
+      "sample_count": 14
+    }
+  }
+}

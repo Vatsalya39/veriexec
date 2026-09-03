@@ -1,0 +1,110 @@
+{
+  "_note": "Transcribed from 00_SHARED_CONTEXT.md §7 (FROZEN). Fields marked _b_derived are additive Team-B enrichments with defaults; base fields are byte-frozen. Dates use the shared clock token grammar (<TODAY>, <TODAY-Nd>, <NOW-Nmin>) and are NEVER hard-coded.",
+  "org": {
+    "legal_name": "Meridian Steel & Logistics Pvt Ltd",
+    "domain": "meridiansteel.example",
+    "timezone": "Asia/Kolkata",
+    "base_currency": "INR"
+  },
+  "executives": [
+    {
+      "executive_id": "EXE-001",
+      "name": "Ananya Rao",
+      "role": "Group CFO",
+      "email": "ananya.rao@meridiansteel.example",
+      "median_amount_inr": 800000,
+      "p95_amount_inr": 4500000,
+      "max_amount_inr": 6200000,
+      "typical_hours_ist": [9, 19],
+      "typical_countries": ["IN", "SG", "AE"],
+      "usual_beneficiaries": ["BEN-001", "BEN-002", "BEN-005"],
+      "initiates_payments_pct": 41,
+      "devices": ["DEV-EXE001-LAPTOP", "DEV-EXE001-PHONE"],
+      "duress_marker_id": "DURESS_LAST_DIGIT_7",
+      "duress_scheme": "numeric_substitution",
+      "_b_derived": {
+        "department": "finance",
+        "reports_to": null,
+        "direct_reports": ["EMP-101", "EMP-102"],
+        "device_families": { "DEV-EXE001-LAPTOP": "first_party", "DEV-EXE001-PHONE": "first_party" },
+        "typical_channels": ["email", "console", "voice_call"]
+      }
+    },
+    {
+      "executive_id": "EXE-002",
+      "name": "Vikram Shah",
+      "role": "Chief Executive Officer",
+      "email": "vikram.shah@meridiansteel.example",
+      "median_amount_inr": 250000,
+      "p95_amount_inr": 1200000,
+      "max_amount_inr": 1800000,
+      "typical_hours_ist": [9, 20],
+      "typical_countries": ["IN", "SG", "AE"],
+      "usual_beneficiaries": ["BEN-002", "BEN-006"],
+      "initiates_payments_pct": 3,
+      "devices": ["DEV-EXE002-PHONE"],
+      "duress_marker_id": "DURESS_PHRASE_ROUTINE",
+      "duress_scheme": "innocuous_token_phrase",
+      "_b_derived": {
+        "department": "executive",
+        "reports_to": null,
+        "direct_reports": ["EXE-001"],
+        "device_families": { "DEV-EXE002-PHONE": "first_party" },
+        "typical_channels": ["voice_call", "console"]
+      }
+    }
+  ],
+  "employees": [
+    {
+      "employee_id": "EMP-101",
+      "name": "Priya Menon",
+      "role": "Finance Manager",
+      "email": "priya.menon@meridiansteel.example",
+      "trust_score": 78,
+      "_b_derived": {
+        "department": "finance",
+        "reports_to": "EXE-001",
+        "devices": ["DEV-EMP101-LAPTOP"],
+        "device_families": { "DEV-EMP101-LAPTOP": "first_party" },
+        "typical_channels": ["email", "console"],
+        "can_approve_secondary": true,
+        "available_now": true
+      }
+    },
+    {
+      "employee_id": "EMP-102",
+      "name": "Rohit Iyer",
+      "role": "Payroll Lead",
+      "email": "rohit.iyer@meridiansteel.example",
+      "trust_score": 91,
+      "_b_derived": {
+        "department": "payroll",
+        "reports_to": "EXE-001",
+        "devices": ["DEV-EMP102-LAPTOP"],
+        "device_families": { "DEV-EMP102-LAPTOP": "first_party" },
+        "typical_channels": ["console", "email"],
+        "can_approve_secondary": true,
+        "available_now": true
+      }
+    },
+    {
+      "employee_id": "EMP-103",
+      "name": "Kabir Nair",
+      "role": "Procurement Analyst",
+      "email": "kabir.nair@meridiansteel.example",
+      "trust_score": 54,
+      "_b_derived": {
+        "department": "procurement",
+        "reports_to": "EMP-101",
+        "devices": ["DEV-EMP103-PHONE"],
+        "device_families": { "DEV-EMP103-PHONE": "first_party" },
+        "typical_channels": ["whatsapp_text", "console"],
+        "can_approve_secondary": false,
+        "available_now": true
+      }
+    }
+  ],
+  "security_officers": [
+    { "officer_id": "SEC-001", "name": "Devika Raman", "role": "Head of Information Security" }
+  ]
+}

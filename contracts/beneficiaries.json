@@ -1,0 +1,96 @@
+{
+  "_note": "AUTHORITATIVE beneficiary registry. Transcribed from 00_SHARED_CONTEXT.md §8 (FROZEN). Relative-date tokens are resolved by the shared clock at load time — never hard-code dates. contracts/beneficiary_master.json is a DERIVED scoring view over these same ids and names; if the two ever disagree, THIS file wins.",
+  "beneficiaries": [
+    {
+      "beneficiary_id": "BEN-001",
+      "name": "Kalyani Forge Components Pvt Ltd",
+      "account": "50100234874471",
+      "ifsc": "HDFC0000123",
+      "bank_name": "HDFC Bank",
+      "country": "IN",
+      "org_payment_count": 214,
+      "first_seen": "<TODAY-1490d>",
+      "last_paid": "<TODAY-6d>",
+      "account_last_modified": "<TODAY-1490d>",
+      "status": "TRUSTED"
+    },
+    {
+      "beneficiary_id": "BEN-002",
+      "name": "Sundaram Freight Solutions",
+      "account": "91820045510238",
+      "ifsc": "ICIC0000456",
+      "bank_name": "ICICI Bank",
+      "country": "IN",
+      "org_payment_count": 57,
+      "first_seen": "<TODAY-880d>",
+      "last_paid": "<TODAY-11d>",
+      "account_last_modified": "<TODAY-402d>",
+      "status": "TRUSTED"
+    },
+    {
+      "beneficiary_id": "BEN-003",
+      "name": "Global Trading FZE",
+      "account": "30070019929982",
+      "ifsc": "EBIL0000001",
+      "bank_name": "Emirates NBD",
+      "country": "AE",
+      "org_payment_count": 0,
+      "first_seen": "<NOW-18min>",
+      "last_paid": null,
+      "account_last_modified": "<NOW-18min>",
+      "status": "NEW_TO_ORG"
+    },
+    {
+      "beneficiary_id": "BEN-004",
+      "name": "Kalyanl Forge Componets Pvt Ltd",
+      "account": "50100234871188",
+      "ifsc": "HDFC0000123",
+      "bank_name": "HDFC Bank",
+      "country": "IN",
+      "org_payment_count": 0,
+      "first_seen": "<NOW-2h>",
+      "last_paid": null,
+      "account_last_modified": "<NOW-2h>",
+      "status": "SUSPECTED_TYPOSQUAT_OF:BEN-001"
+    },
+    {
+      "beneficiary_id": "BEN-005",
+      "name": "Meridian Payroll Pool",
+      "account": "00220034009911",
+      "ifsc": "SBIN0000789",
+      "bank_name": "State Bank of India",
+      "country": "IN",
+      "org_payment_count": 1180,
+      "first_seen": "<TODAY-2100d>",
+      "last_paid": "<TODAY-2d>",
+      "account_last_modified": "<TODAY-2100d>",
+      "status": "TRUSTED"
+    },
+    {
+      "beneficiary_id": "BEN-006",
+      "name": "Orion Metals DMCC",
+      "account": "30070018820451",
+      "ifsc": "ADCB0000002",
+      "bank_name": "Abu Dhabi Commercial Bank",
+      "country": "AE",
+      "org_payment_count": 23,
+      "first_seen": "<TODAY-610d>",
+      "last_paid": "<TODAY-37d>",
+      "account_last_modified": "<NOW-2h>",
+      "status": "RECENTLY_MODIFIED"
+    },
+    {
+      "beneficiary_id": "BEN-007",
+      "name": "Zenith Marine Services",
+      "account": "91820045517766",
+      "ifsc": "ICIC0000456",
+      "bank_name": "ICICI Bank",
+      "country": "IN",
+      "org_payment_count": 9,
+      "first_seen": "<TODAY-240d>",
+      "last_paid": "<TODAY-19d>",
+      "account_last_modified": "<TODAY-240d>",
+      "status": "TRUSTED_NEW_TO_EXECUTIVE"
+    }
+  ]
+}
