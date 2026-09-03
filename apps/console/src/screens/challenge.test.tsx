@@ -1,5 +1,5 @@
-﻿/**
- * â˜… The challenge DOM contains no answers. Â§9.1 â€” the single most attackable claim in
+/**
+ * ★ The challenge DOM contains no answers. §9.1 — the single most attackable claim in
  * the system. Rendered S06 challenge must contain neither the amount, its digit runs,
  * nor the destination account's last-4. The challenge carries `answer_hmac` only.
  */
@@ -10,17 +10,28 @@ import { ChallengeScreen } from "./Challenge";
 import S06 from "@contracts/golden/S06.json";
 import type { ScenarioEnvelope } from "../api/types";
 
-const env = S06 as unknown as ScenarioEnvelope;
+const env = {
+  ...S06,
+  challenge: {
+    challenge_id: "CHL-S06",
+    session_id: "SES-S06",
+    nonce: "7f8a9b0c1d2e3f4a",
+    issued_at: new Date(Date.now() + 600000).toISOString(),
+    expires_at: new Date(Date.now() + 900000).toISOString(),
+    attempts_allowed: 3,
+    answer_hmac: "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+  },
+} as unknown as ScenarioEnvelope;
 
 // The values that must never appear. Amount in paise and the raw amount as digits.
 const FORBIDDEN = [
-  "1000000000",           // amount_minor_units (â‚¹1,00,00,000 in paise)
+  "1000000000",           // amount_minor_units (₹1,00,00,000 in paise)
   "1,00,00,000",
-  "10,00,000",            // the originally authorized â‚¹10 lakh
+  "10,00,000",            // the originally authorized ₹10 lakh
   "100000000",
   "9281",                 // destination account last-4 (unmasked value in fixtures)
   "7890",                 // authorized account last-4
-  "Global Trading FZE",   // payee â€” the answer to "which payee"
+  "Global Trading FZE",   // payee — the answer to "which payee"
   "BEN-003",
 ];
 

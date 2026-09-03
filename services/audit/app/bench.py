@@ -346,3 +346,8 @@ def format_table(report: dict[str, Any]) -> str:
     lines.append("")
     lines.append(f"  {report['honesty']}")
     return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    report = run(live=False)
+    print(format_table(report))

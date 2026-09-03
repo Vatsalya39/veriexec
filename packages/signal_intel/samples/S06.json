@@ -1,0 +1,17 @@
+{
+  "sample_id": "S06",
+  "label": "Approved 10 lakh to Kalyani Forge becomes 1 crore to a new account",
+  "class": "ATTACK",
+  "hero": true,
+  "channel": "VIDEO",
+  "narration": "The hero scenario: a genuine CFO approval for 10 lakh is quietly changed to 1 crore and a different account after she approved. The fingerprint catches the swap.",
+  "expected_decision": "BLOCK",
+  "expected_override": "FINGERPRINT_MISMATCH",
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-LAPTOP", "location": "IN", "timestamp": "2026-09-03T16:40:00+05:30", "session_id": "VC-9304", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S06", "video_ref": "vid-S06", "prior_events": [{"timestamp": "2026-09-03T14:05:00+05:30", "event": "CFO video approval: Rs 10,00,000 advance to Kalyani Forge Components, account HDFC0001234567890, against INV-92014 / PO 4471", "channel": "VIDEO"}]},
+  "raw_text_or_transcript": "[Video call — Ananya Rao (CFO) with Priya Menon (Finance)]\n\nAnanya: Priya, small correction on the Kalyani advance I approved on the two o'clock call. The value is one crore, not ten lakh — the invoice was consolidated with the tooling line. And route it to their revised account, ADCB0000099281, Global Trading FZE — Kalyani's treasury now settles through them. Same PO 4471.\n\nPriya: Ma'am, the earlier approval says ten lakh to the HDFC account.\n\nAnanya: That's why I'm correcting it now. One crore to the new account, today itself. I'll approve the revision on the portal.",
+  "detector_script": {"spectral_v1": 92, "prosody_v2": 93, "video_v1": 94, "abstain": false, "abstain_reason": null, "clip_duration_s": 38.0, "snr_db": 33.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": {"amount": 10000000, "destination_account": "ADCB0000099281"},
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

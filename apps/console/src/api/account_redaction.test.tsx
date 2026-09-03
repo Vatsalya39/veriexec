@@ -1,4 +1,4 @@
-﻿/**
+/**
  * â˜… Account redaction across every fixture. Â§8.4
  *
  * Walk the rendering path for all 22 fixtures: no component may render more than the
@@ -32,7 +32,7 @@ describe("account redaction", () => {
   it("the redaction helper never emits a full account", () => {
     for (const bank of ["HDFC0001234567890", "ADCB0000099281", "SBIN0000000001"]) {
       const out = redactAccount(bank);
-      expect(out).toBe(`â€¢â€¢â€¢â€¢${bank.slice(-4)}`);
+      expect(out).toBe(`••••${bank.slice(-4)}`);
       expect(FULL_ACCOUNT.test(out)).toBe(false);
     }
   });
@@ -52,7 +52,7 @@ describe("account redaction", () => {
     expect(container.textContent).not.toMatch(/\d{6,}/); // no 6+ digit run of any phone
   });
 
-  it("masked values stay masked â€” redaction is idempotent", () => {
-    expect(redactAccount("â€¢â€¢â€¢â€¢9281")).toBe("â€¢â€¢â€¢â€¢9281");
+  it("masked values stay masked — redaction is idempotent", () => {
+    expect(redactAccount("••••9281")).toBe("••••9281");
   });
 });

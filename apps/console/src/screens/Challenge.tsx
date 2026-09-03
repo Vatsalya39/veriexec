@@ -19,7 +19,6 @@
 import { useEffect, useState } from "react";
 import type { Challenge, ScenarioEnvelope } from "../api/types";
 import { audit } from "../api/client";
-import { redactAccount } from "../api/format";
 
 // Dev-fixture key — mirrors INTENTLOCK_HMAC_SECRET's documented fallback. Not a secret.
 const FIXTURE_KEY = "intentlock-dev-fixture-key-not-a-secret";
@@ -183,8 +182,7 @@ export function ChallengeScreen({ envelope, onOutcome }: { envelope: ScenarioEnv
         <p className="sm" style={{ color: "var(--faint)" }}>
           A deepfake can say yes. Only the real executive knows the amount, payee and account they
           actually authorized. The values are compared as HMACs made when the challenge was issued —
-          the answers never travel with the challenge. Account on record:{" "}
-          {redactAccount(envelope.intent.beneficiary?.account_last4 ?? null)} (last 4 only).
+          the answers never travel with the challenge.
         </p>
       </details>
     </div>

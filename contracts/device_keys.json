@@ -1,0 +1,68 @@
+{
+  "_note": "PUBLIC KEYS ONLY. Wire format is fixed by contracts/CRYPTO_WIRE_FORMAT.md: SPKI DER, base64url, no padding. Private keys live in gitignored dev/keys/ and never leave the browser in a real deployment.",
+  "devices": [
+    {
+      "device_id": "DEV-EMP101-LAPTOP",
+      "owner_id": "EMP-101",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE23SKk6c2M65-C2rpPsSICNgc45IEJO4ndiPw9l0Oxn1iNyq9KIwtPCCHdcH3l9y1aEsDKXleiro51BOxruvFwA",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EMP102-LAPTOP",
+      "owner_id": "EMP-102",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvPoIi6MozE4fvIyyA-9RlXX9DpBDfBk_U8lbG-o6IxQKxOpIxBAv7Hxsemp0RrGFAB-DTvzjocCtFMVDSavYPw",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EMP103-PHONE",
+      "owner_id": "EMP-103",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEh6FTUTT2P8Pe5L9oDq0DqtRlm5XfIosUPExHZvRQoAzZnOxuat5jGDxt3_IX2sWMwgJwp8cnahu0H8OnKNYgpA",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EXE001-LAPTOP",
+      "owner_id": "EXE-001",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUgg6P8IA-myUXFPN8-YC67imxbDv_KOKM1kf3kgJZv1RionpfQNV-GlR1NFin20k2b--ON1lbFupF2wE1_JTRw",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EXE001-OLDPHONE",
+      "owner_id": "EXE-001",
+      "status": "revoked",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDiL26jotqxFG-1sXqLhV6LAk5Bd9ZkYyjRVo66Yk3ju807mF66rdXGvcimST6tsHv3OXjPDSXuA2I6Sh25OLuQ",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EXE001-PHONE",
+      "owner_id": "EXE-001",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEscPdqEGm37vS7UcrRmF2RY1ZUclPaAT315kpBVIVoh0D0I18c0jUNqZpn8ifxvgzHRtegvKDmxfZTSiKRVG6Ww",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    },
+    {
+      "device_id": "DEV-EXE002-PHONE",
+      "owner_id": "EXE-002",
+      "status": "active",
+      "curve": "P-256",
+      "public_key_spki_b64u": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9O0uvcEnszhX5PfL403dDwE4x2z4W0h55FFJMo-RalK2hK9zI6wDSXNWcDMhKMA9jgdlRnOmMjl-ntFzuT5CkA",
+      "enrolled_at": "<TODAY-30d>",
+      "family": "first_party"
+    }
+  ]
+}

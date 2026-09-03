@@ -1,0 +1,6 @@
+[
+  {"executive_id": "EXE-001", "scheme": "DURESS_LAST_DIGIT_7", "kind": "numeric_substitution",
+   "param_hmac": "6d33218abcf6457dfa28c1c2cdc6c2de582284f11a36a8951077d7ec840ca2c3"},
+  {"executive_id": "EXE-002", "scheme": "DURESS_PHRASE_ROUTINE", "kind": "innocuous_token_phrase",
+   "param_hmac": "0259ef40633ce731511c926ab6f0b883db00e5bf5a792a23845ba80f91eea3ec"}
+]

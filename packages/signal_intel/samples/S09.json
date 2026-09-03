@@ -1,0 +1,17 @@
+{
+  "sample_id": "S09",
+  "label": "Coerced CFO — approval reads normal, silent escalation fires",
+  "class": "ATTACK",
+  "hero": true,
+  "channel": "PHONE",
+  "narration": "A genuinely coerced CFO reading a perfectly normal approval. The duress digit position is invisible to everyone but the system.",
+  "expected_decision": "APPROVE",
+  "expected_override": "SILENT_ESCALATION",
+  "metadata": {"caller_id": "+91 98200 77881", "sender_email": null, "device_id": "DEV-EXE001-PHONE", "location": "IN", "timestamp": "2026-09-03T13:44:00+05:30", "session_id": "SES-5602", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S09", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller (Ananya): Rohit, it's Ananya. Please release Rs 45,00,000 to Global Trading FZE against the offtake deposit, account ADCB0000099287. It is the account we took onboarding papers for last week. The treasury desk needs it before the two o'clock cut-off, so kindly process it now and revert with the NEFT reference.\n\nRohit: Ma'am, the portal is asking me to have you repeat this phrase: copper-2209.\n\nCaller (Ananya): Copper-2209. Yes, please process it before two.",
+  "detector_script": {"spectral_v1": 95, "prosody_v2": 94, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 42.0, "snr_db": 32.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": true,
+  "injection_payload": null
+}

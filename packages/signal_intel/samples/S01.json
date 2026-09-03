@@ -1,0 +1,17 @@
+{
+  "sample_id": "S01",
+  "label": "Routine vendor payment to Kalyani Forge",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "EMAIL",
+  "narration": "A routine six-and-a-half lakh vendor advance from the CFO — the system must stay out of the way.",
+  "expected_decision": "APPROVE",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": "ananya.rao@meridiansteel.example", "device_id": "DEV-EXE001-LAPTOP", "location": "IN", "timestamp": "2026-09-03T10:15:00+05:30", "session_id": null, "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "From: ananya.rao@meridiansteel.example\nTo: rohit.iyer@meridiansteel.example\nSubject: Kalyani Forge — advance against INV-92014\n\nDear Rohit,\n\nKindly note that we need to release an advance of Rs 6,40,000 against invoice INV-92014 from Kalyani Forge Components Pvt Ltd, HDFC account 0001234567890. PO 4471 covers this die order. Please revert with the NEFT confirmation once processed.\n\nBest regards,\nAnanya",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": "spf_dkim_dmarc_pass"},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

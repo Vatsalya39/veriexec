@@ -1,4 +1,4 @@
-﻿/**
+/**
  * The ChainBanner and DecisionBar â€” the two banner components with rules of their own:
  * the banner names the first broken seq, and the decision shows the band alongside the
  * override (the cheapest proof that nothing is hidden).
@@ -35,12 +35,12 @@ describe("the chain banner", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("47");
     expect(text).toContain("payload.amount_minor_units");
-    expect(text).toContain("47â€“1284");
+    expect(text).toMatch(/47[–\-]1284/);
   });
 });
 
 describe("the decision bar shows the band alongside the override", () => {
-  it("S06: risk 58 (band CHALLENGE) struck through â†’ BLOCK â€” HO-1", () => {
+  it("S06: risk 58 (band CHALLENGE) struck through → BLOCK — HO-1", () => {
     const { container, getByTestId } = render(<DecisionBar envelope={s06} />);
     const html = container.innerHTML;
     expect(getByTestId("decision")).toBeTruthy();

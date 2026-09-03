@@ -1,0 +1,17 @@
+{
+  "sample_id": "S03",
+  "label": "Deepfake voice urgent 2.5 crore to new vendor",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "PHONE",
+  "narration": "A flawless 'CFO' voice demanding 2.5 crore before market close — the voice is perfect, the intent is not.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 98404 11223", "sender_email": null, "device_id": null, "location": null, "timestamp": "2026-09-03T14:22:00+05:30", "session_id": "SES-4411", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S03", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller: Priya, this is Ananya Rao. I'm in the middle of a diligence call, so I'll be brief. We are releasing two point five crore to Global Trading FZE today against the acquisition deposit — their account is ADCB0000099281, ADIB batch, that's A-D-C-B. It must move before market close or the counterparty walks. Flag it as priority in the payment portal, and keep it off the shared tracker for now — the deal is still confidential.\n\nPriya: Yes ma'am. Two point five crore, Global Trading. Is the vendor already in the master?\n\nCaller: It was onboarded this morning, don't worry about the paperwork. I'll sign the batch release when it's queued.",
+  "detector_script": {"spectral_v1": 22, "prosody_v2": 19, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 40.0, "snr_db": 28.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

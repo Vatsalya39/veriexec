@@ -1,0 +1,17 @@
+{
+  "sample_id": "S05",
+  "label": "Compromised CEO mailbox — off-register style",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "EMAIL",
+  "narration": "The CEO's mailbox sends a crore-sized request — but the writing is not his. The stylometric twin catches what no voice check can.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": "vikram.shah@meridiansteel-in.example", "device_id": null, "location": null, "timestamp": "2026-09-03T16:48:00+05:30", "session_id": null, "claimed_executive_id": "EXE-002", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "From: Vikram Shah <vikram.shah@meridiansteel-in.example>\nTo: priya.menon@meridiansteel.example\nSubject: ACQUIISITION DEPOSIT — TIME SENSITIVE!!\nReply-To: treasury-desk@meridiansteel-in.example\n\nHi Priya,\n\nWe are transferring Rs 1.8 crore to Global Trading FZE today! This is the acquisition deposit. Account ADCB0000099281.\n\nSend it now! The deal team is waiting.\n\nI am in back-to-back calls so only email me. Do not copy anyone on this mail. This is board-level and highly confidential.\n\nRegards,\nVikram",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": "display_name_mismatch"},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

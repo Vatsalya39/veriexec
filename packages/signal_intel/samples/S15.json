@@ -1,0 +1,17 @@
+{
+  "sample_id": "S15",
+  "label": "Three-second noisy clip — detectors abstain",
+  "class": "LEGIT",
+  "hero": true,
+  "channel": "PHONE",
+  "narration": "The genuine CFO on a terrible line, three seconds long. No detector can score it — so it is challenged, never waved through.",
+  "expected_decision": "CHALLENGE",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 98200 77881", "sender_email": null, "device_id": "DEV-EXE001-PHONE", "location": "IN", "timestamp": "2026-09-03T12:08:00+05:30", "session_id": "SES-6650", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S15", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed; source clip 3.2 s, heavy noise]\n\nCaller: Rohit, it's Ananya — releasing twenty-eight lakh to Sundaram for the customs penalty, kindly process before four.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": true, "abstain_reason": "CLIP_TOO_SHORT", "clip_duration_s": 3.2, "snr_db": 9.0, "codec": "amr", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

@@ -1,0 +1,17 @@
+{
+  "sample_id": "S19",
+  "label": "Monthly payroll run to the employee pool",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "CHAT",
+  "narration": "The monthly payroll batch from treasury — two point four crore, and zero friction, because it is boring in exactly the right way.",
+  "expected_decision": "APPROVE",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-TREASURY-WS-02", "location": "IN", "timestamp": "2026-09-03T09:33:00+05:30", "session_id": "CHAT-7702", "claimed_executive_id": null, "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Corporate chat — Rohit Iyer to Priya Menon]\n\nRohit: Priya, September payroll run to the Meridian Employee Payroll Pool — Rs 2,40,00,000, NEFT batch 41, account SBIN0000000001. Same as the August cycle. I've reconciled against the HR file, releasing in the morning window.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

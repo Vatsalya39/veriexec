@@ -31,7 +31,7 @@ export function decisionTone(decision: string | null | undefined): DecisionTone 
 }
 
 export function decisionColor(decision: string | null | undefined): string {
-  return COLORS[decisionTone(decision ?? "")];
+  return `var(--${decisionTone(decision ?? "")})`;
 }
 
 /** Icon + text for every state, so the screen survives a projector and a colour-blind judge. */

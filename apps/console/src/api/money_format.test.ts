@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Money, hashes, redaction, reason copy, and the chain-recompute cross-check.
  * `formatInr` asserts the Â§23 rule: never floats, Indian 2-2-3 grouping.
  */
@@ -9,25 +9,25 @@ import { reasonSentence, stepRailLine } from "../copy/reasons";
 import { canonicalize, recomputeRecordHash, sha256Hex } from "./recompute";
 
 describe("money formatting", () => {
-  it("45000000 paise â†’ â‚¹4,50,000.00 (Indian 2-2-3 grouping)", () => {
-    expect(formatInr(45000000)).toBe("â‚¹4,50,000.00");
+  it("45000000 paise → ₹4,50,000.00 (Indian 2-2-3 grouping)", () => {
+    expect(formatInr(45000000)).toBe("₹4,50,000.00");
   });
   it("large crore values group correctly", () => {
-    expect(formatInr(1000000000)).toBe("â‚¹1,00,00,000.00");
+    expect(formatInr(1000000000)).toBe("₹1,00,00,000.00");
   });
   it("small values do not group", () => {
-    expect(formatInr(99999)).toBe("â‚¹999.99");
-    expect(formatInr(100000)).toBe("â‚¹1,000.00");
+    expect(formatInr(99999)).toBe("₹999.99");
+    expect(formatInr(100000)).toBe("₹1,000.00");
   });
   it("negative amounts carry the sign", () => {
-    expect(formatInr(-250000)).toBe("-â‚¹2,500.00");
+    expect(formatInr(-250000)).toBe("-₹2,500.00");
   });
   it("null and undefined render as absent, never 0", () => {
-    expect(formatInr(null)).toBe("â€”");
-    expect(formatInr(undefined)).toBe("â€”");
+    expect(formatInr(null)).toBe("—");
+    expect(formatInr(undefined)).toBe("—");
   });
-  it("integers only â€” a float cannot reach the formatter", () => {
-    expect(formatInr(Math.trunc(1.5))).toBe("â‚¹0.01");
+  it("integers only — a float cannot reach the formatter", () => {
+    expect(formatInr(Math.trunc(1.5))).toBe("₹0.01");
   });
   it("lakh/crore phrasing for the sandbox field", () => {
     expect(formatLakhCrore(1000000000)).toContain("crore");
@@ -35,22 +35,22 @@ describe("money formatting", () => {
   });
 });
 
-describe("redaction â€” last 4 only, everywhere", () => {
+describe("redaction — last 4 only, everywhere", () => {
   it("masks an IFSC-prefixed account", () => {
-    expect(redactAccount("HDFC0001234567890")).toBe("â€¢â€¢â€¢â€¢7890");
+    expect(redactAccount("HDFC0001234567890")).toBe("••••7890");
   });
   it("is idempotent on already-masked values", () => {
-    expect(redactAccount("â€¢â€¢â€¢â€¢9281")).toBe("â€¢â€¢â€¢â€¢9281");
+    expect(redactAccount("••••9281")).toBe("••••9281");
   });
   it("null/empty render as absent", () => {
-    expect(redactAccount(null)).toBe("â€”");
-    expect(redactAccount("")).toBe("â€”");
+    expect(redactAccount(null)).toBe("—");
+    expect(redactAccount("")).toBe("—");
   });
 });
 
 describe("hashes and countdowns", () => {
   it("truncates with an ellipsis", () => {
-    expect(shortHash("a".repeat(64))).toBe("aaaaâ€¦aaa");
+    expect(shortHash("a".repeat(64))).toBe("aaaa…aaa");
   });
   it("m:ss for the cooldown bar", () => {
     expect(formatCountdown(348)).toBe("5:48");

@@ -1,5 +1,5 @@
-﻿/**
- * â˜… The two-number card obeys its rules. Â§8.2
+/**
+ * ★ The two-number card obeys its rules. §8.2
  *
  * Voice authenticity neutral grey at any value; intent confidence in the decision
  * colour; identical geometry; both on one screen, always.
@@ -23,7 +23,7 @@ describe("the two-number card", () => {
     expect(getByTestId("intent-confidence")).toBeTruthy();
   });
 
-  it("voice bar is neutral grey at ANY value â€” even 96 next to a red 20", () => {
+  it("voice bar is neutral grey at ANY value — even 96 next to a red 20", () => {
     const { container } = render(
       <TwinNumberCard voiceAuthenticity={96} intentConfidence={20} decision="BLOCK" />);
     const { voice, intent } = barStyles(container);
@@ -39,7 +39,7 @@ describe("the two-number card", () => {
     expect(intent!.style.background).toBe("var(--approve)");
   });
 
-  it("both bars share geometry â€” one class, same height", () => {
+  it("both bars share geometry — one class, same height", () => {
     const { container } = render(
       <TwinNumberCard voiceAuthenticity={50} intentConfidence={50} decision="CHALLENGE" />);
     const bars = container.querySelectorAll<HTMLElement>(".twin-meter");
@@ -48,7 +48,7 @@ describe("the two-number card", () => {
     expect(getComputedStyle(bars[0]).height).toBe(getComputedStyle(bars[1]).height);
   });
 
-  it("an abstained voice reads as abstained, never as 0 (unavailable â‰  clean)", () => {
+  it("an abstained voice reads as abstained, never as 0 (unavailable ≠ clean)", () => {
     const { getByTestId } = render(
       <TwinNumberCard voiceAuthenticity={null} intentConfidence={40} decision="CHALLENGE" />);
     expect(getByTestId("voice-authenticity").textContent).toContain("abstained");

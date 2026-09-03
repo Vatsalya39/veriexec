@@ -1,0 +1,17 @@
+{
+  "sample_id": "S02",
+  "label": "Genuine high-value freight settlement over video",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "VIDEO",
+  "narration": "A genuine forty-two lakh settlement on a video call — high value, so the system asks once, properly.",
+  "expected_decision": "CHALLENGE",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-LAPTOP", "location": "IN", "timestamp": "2026-09-03T11:02:00+05:30", "session_id": "VC-8812", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S02", "video_ref": "vid-S02", "prior_events": [{"timestamp": "2026-09-03T08:40:00+05:30", "event": "email from CFO: Sundaram settlement docs for approval", "channel": "EMAIL"}]},
+  "raw_text_or_transcript": "[Video call — Ananya Rao (CFO) with Rohit Iyer (Treasury)]\n\nAnanya: Rohit, the Sundaram Freight settlement for the September consignment — forty-two lakh, ICIC account ending 776655, against consignment note 3312. The customs papers went to Priya this morning. Process it by NEFT after the usual checks, there is no rush beyond this week.\n\nRohit: Understood, ma'am. I'll raise it in the batch today.",
+  "detector_script": {"spectral_v1": 88, "prosody_v2": 90, "video_v1": 91, "abstain": false, "abstain_reason": null, "clip_duration_s": 45.0, "snr_db": 34.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

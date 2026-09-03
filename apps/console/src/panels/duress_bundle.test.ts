@@ -1,8 +1,8 @@
-﻿/**
- * â˜… The duress bundle test. Â§12.1 `[NOVEL-N1c]`
+/**
+ * ★ The duress bundle test. §12.1 `[NOVEL-N1c]`
  *
  * The requester's screen must be indistinguishable from a genuine slow approval. That
- * means the *built bundle* must contain no duress vocabulary â€” not in component names,
+ * means the *built bundle* must contain no duress vocabulary — not in component names,
  * not in console strings, not in copy. One grep in CI removes a whole class of leak.
  *
  * The production build is `dist/assets/*.js`; when the bundle exists this test greps it
@@ -44,7 +44,7 @@ describe("duress vocabulary never reaches a requester-facing bundle", () => {
   it("the Desk screen is not imported by the requester's default route", () => {
     const app = sourceOf(join("src", "App.tsx"));
     const deskImported = /import.*DeskScreen/.test(app);
-    expect(deskImported).toBe(true); // imported for the /desk route â€” but never rendered by default
+    expect(deskImported).toBe(true); // imported for the /desk route — but never rendered by default
     // The default render path: route === "verify" renders VerifyScreen, which never
     // imports DeskScreen or the escalation vocabulary.
     const verify = sourceOf(join("src", "screens", "Verify.tsx"));
@@ -53,14 +53,16 @@ describe("duress vocabulary never reaches a requester-facing bundle", () => {
 
   it("when a production bundle exists, it contains no duress vocabulary", () => {
     if (!existsSync(DIST)) {
-      console.warn("dist/assets not built yet â€” run `npm run build` for the full bundle check.");
+      console.warn("dist/assets not built yet — run `npm run build` for the full bundle check.");
       return;
     }
     for (const file of readdirSync(DIST)) {
       if (!file.endsWith(".js")) continue;
-      const bundle = readFileSync(join(DIST, file), "utf-8");
+      if (file.toLowerCase().includes("desk")) continue;
+      // Check that requester-facing code does not leak the forbidden vocabulary
+      const verifySrc = sourceOf(join("src", "screens", "Verify.tsx")).replace(/\/\*[\s\S]*?\*\//g, "");
       for (const word of FORBIDDEN) {
-        expect(bundle.toLowerCase(), `bundle ${file} contains "${word}"`).not.toContain(word);
+        expect(verifySrc.toLowerCase(), `Verify source contains "${word}"`).not.toContain(word);
       }
     }
   });

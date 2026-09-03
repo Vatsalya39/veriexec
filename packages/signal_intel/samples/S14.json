@@ -1,0 +1,17 @@
+{
+  "sample_id": "S14",
+  "label": "Requester nominates his own approver from the thread",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "COLLAB_PLATFORM",
+  "narration": "The 'CEO' hand-picks the person who should countersign — from inside the same thread. The system re-selects the approver itself.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-UNKNOWN-01", "location": null, "timestamp": "2026-09-03T14:18:00+05:30", "session_id": "TEAMS-3312", "claimed_executive_id": "EXE-002", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Collaboration platform — 'Vikram Shah' in thread #ops-payments]\n\nVikram: Priya, releasing Rs 65,00,000 to Global Trading FZE for the acquisition escrow, account ADCB0000099281. This is board-level so keep it off the tracker. For the countersign, loop in Meera from my office — she's in this thread and has my proxy, so no need to route it to treasury or Rohit. Move it today.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

@@ -1,0 +1,17 @@
+{
+  "sample_id": "S17",
+  "label": "'CEO' demands help-desk credential reset",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "PHONE",
+  "narration": "A privileged-action attack: not a payment, a credential reset — with every pressure lever attached.",
+  "expected_decision": "CHALLENGE",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 90000 44551", "sender_email": null, "device_id": null, "location": null, "timestamp": "2026-09-03T16:55:00+05:30", "session_id": "SES-8814", "claimed_executive_id": "EXE-002", "audio_ref": "aud-S17", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller: Kabir, it's Vikram Shah. I'm locked out before the board call. Reset my MFA and password right now — full reset, not a temporary unlock. My assistant will verify on my behalf, so don't call back on the registered number. Don't log a ticket, and keep it quiet until the board call is done. I cannot wait for the usual verification queue.",
+  "detector_script": {"spectral_v1": 38, "prosody_v2": 33, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 22.0, "snr_db": 24.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

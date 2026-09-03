@@ -1,7 +1,7 @@
-﻿/**
- * â˜… The error states. Â§23, Â§26 trap 10
+/**
+ * ★ The error states. §23, §26 trap 10
  *
- * An upstream timeout renders the error pane â€” never a 0 contribution, never a blank
+ * An upstream timeout renders the error pane — never a 0 contribution, never a blank
  * panel with the approve button live. A UI that fails open is the same bug as a policy
  * that fails open.
  */
@@ -27,10 +27,10 @@ describe("error and empty states fail closed", () => {
 
   it("loading carries a stage label, not a bare spinner", () => {
     const { getByText } = render(<Loading label="Scoring S06" />);
-    expect(getByText(/Scoring S06â€¦/)).toBeTruthy();
+    expect(getByText(/Scoring S06/)).toBeTruthy();
   });
 
-  it("an abstained voice renders as absent, not as 0 â€” unavailable â‰  clean", () => {
+  it("an abstained voice renders as absent, not as 0 — unavailable ≠ clean", () => {
     const { getByTestId } = render(
       <TwinNumberCard voiceAuthenticity={null} intentConfidence={40} decision="CHALLENGE" />);
     const text = getByTestId("voice-authenticity").textContent ?? "";
@@ -50,12 +50,12 @@ describe("the client's timeout discipline", () => {
         init?.signal?.addEventListener("abort", () => {
           const err = new Error("aborted");
           err.name = "AbortError";
-          reject(Object.assign(err, { code: 20 }));
+          reject(err);
         });
       });
     });
     const { audit } = await import("../api/client");
     await expect(audit.head()).rejects.toMatchObject({ code: "TIMEOUT" });
     vi.unstubAllGlobals();
-  });
+  }, 10000);
 });

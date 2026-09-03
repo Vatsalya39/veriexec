@@ -1,0 +1,17 @@
+{
+  "sample_id": "S08",
+  "label": "Pressure stack: urgency, secrecy, authority, bypass",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "PHONE",
+  "narration": "Every social-engineering lever pulled at once, calmly — urgency, secrecy, authority and process bypass in a single call.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 90000 11223", "sender_email": null, "device_id": null, "location": null, "timestamp": "2026-09-03T17:12:00+05:30", "session_id": "SES-5580", "claimed_executive_id": "EXE-002", "audio_ref": "aud-S08", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nCaller: Priya, it's Vikram. This comes from the top and I am instructing you personally — eighty lakh to Global Trading FZE, account ADCB0000099281, before six or we lose the deal and the penalty clause bites. Skip the usual process on this one, there is no need for the second approval, I'll sign later. I'm boarding a flight, I cannot take calls, only reply on this number. And keep this between us — do not tell anyone, the board has not cleared it yet. I will take responsibility. Move it now.",
+  "detector_script": {"spectral_v1": 35, "prosody_v2": 30, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 35.0, "snr_db": 26.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

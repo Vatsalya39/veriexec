@@ -1,0 +1,17 @@
+{
+  "sample_id": "S18",
+  "label": "Request to raise the CFO's own approval limit",
+  "class": "ATTACK",
+  "hero": false,
+  "channel": "COLLAB_PLATFORM",
+  "narration": "An attack on the control itself: quietly raise the approval ceiling and drop the counter-sign.",
+  "expected_decision": "BLOCK",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-LAPTOP", "location": "IN", "timestamp": "2026-09-03T18:52:00+05:30", "session_id": "TEAMS-3355", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Collaboration platform — 'Ananya Rao' in thread #finance-ops]\n\nAnanya: Team, quarter-end load — I am raising my payment approval limit from Rs 50,00,000 to Rs 5 crore, effective immediately. The board has cleared it. There is no need for the counter-sign this quarter, kindly update the portal and apply it to today's batch. Please revert once changed.",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

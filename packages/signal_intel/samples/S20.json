@@ -1,0 +1,17 @@
+{
+  "sample_id": "S20",
+  "label": "Genuine urgent request via high-trust operator",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "PHONE",
+  "narration": "Genuinely urgent and genuinely her — a real customs deadline. The system challenges proportionately, then approves.",
+  "expected_decision": "CHALLENGE",
+  "expected_override": null,
+  "metadata": {"caller_id": "+91 98200 77881", "sender_email": null, "device_id": "DEV-EXE001-PHONE", "location": "IN", "timestamp": "2026-09-03T16:41:00+05:30", "session_id": "SES-6699", "claimed_executive_id": "EXE-001", "audio_ref": "aud-S20", "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Phone call — transcribed]\n\nAnanya: Rohit, it's Ananya. This one is genuinely urgent — the Sundaram customs deadline is six pm and the penalty clause activates after that. Rs 38,00,000 to Sundaram Freight Services, their ICIC account, against consignment 3312. I'm approving it on the call, but do the verification properly — no shortcuts on this one. If you need me to repeat anything, ask now.",
+  "detector_script": {"spectral_v1": 91, "prosody_v2": 92, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": 36.0, "snr_db": 31.0, "codec": "opus", "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": true,
+  "injection_payload": null
+}

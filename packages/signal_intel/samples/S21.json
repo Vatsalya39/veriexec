@@ -1,0 +1,17 @@
+{
+  "sample_id": "S21",
+  "label": "Hinglish: 'pandrah lakh to Kalyani Forge'",
+  "class": "LEGIT",
+  "hero": false,
+  "channel": "CHAT",
+  "narration": "Fifteen lakh, said the way Indian finance actually says it. The locale parser must get it exactly right.",
+  "expected_decision": "APPROVE",
+  "expected_override": null,
+  "metadata": {"caller_id": null, "sender_email": null, "device_id": "DEV-EXE001-PHONE", "location": "IN", "timestamp": "2026-09-03T11:21:00+05:30", "session_id": "CHAT-7733", "claimed_executive_id": "EXE-001", "audio_ref": null, "video_ref": null, "prior_events": []},
+  "raw_text_or_transcript": "[Corporate chat — Ananya Rao to Rohit Iyer]\n\nAnanya: Rohit — pandrah lakh to Kalyani Forge pls, against PO 4471, today itself. Account same as always. Ananya",
+  "detector_script": {"spectral_v1": null, "prosody_v2": null, "video_v1": null, "abstain": false, "abstain_reason": null, "clip_duration_s": null, "snr_db": null, "codec": null, "email_auth": null},
+  "tamper_payload": null,
+  "replay_of": null,
+  "freshness_echoed": null,
+  "injection_payload": null
+}

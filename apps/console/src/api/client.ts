@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Typed fetch wrappers, one per service. Â§24
  *
  * Rules (Â§24.2, made structural here): a 3-second timeout; one retry only on GET; a typed
@@ -47,7 +47,7 @@ async function call<T>(
       }
       return (await res.json()) as T;
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
+      if ((err as Error)?.name === "AbortError" || (err instanceof DOMException && err.name === "AbortError")) {
         throw { code: "TIMEOUT", detail: `${url} did not respond in 3 seconds` } as ApiError;
       }
       if ((err as ApiError)?.code) throw err;
