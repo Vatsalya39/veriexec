@@ -26,8 +26,13 @@ SAMPLES_DIR = Path(__file__).resolve().parent / "samples"  # packages/signal_int
 app = FastAPI(title="INTENTLOCK Signal Intelligence", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8001", "http://localhost:8002",
-                   "http://localhost:8003"],
+    allow_origins=[
+        "http://localhost:5173", "http://127.0.0.1:5173",
+        "http://localhost:4173", "http://127.0.0.1:4173",
+        "http://localhost:8001", "http://127.0.0.1:8001",
+        "http://localhost:8002", "http://127.0.0.1:8002",
+        "http://localhost:8003", "http://127.0.0.1:8003",
+    ],
     allow_methods=["*"], allow_headers=["*"],
 )
 
