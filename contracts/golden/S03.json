@@ -1,0 +1,541 @@
+{
+  "_generated_by": "services/audit/tools/make_golden.py — do not hand-edit",
+  "_mocked": "Replace with a live response from :8002 at integration.",
+  "assessment": {
+    "abstentions": [],
+    "arithmetic": {
+      "contributions_subtotal": 70.7,
+      "coverage": 1.0,
+      "explanation": "70.70 across all seven dimensions, nothing abstained, no uncertainty penalty = 71.",
+      "renormalized": 70.7,
+      "risk_score": 71,
+      "uncertainty_penalty": 0.0,
+      "uncertainty_penalty_rate": 0.3
+    },
+    "assessment_id": "ASM-S03",
+    "band_outcome": "BLOCK",
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "contributions": [
+      {
+        "dimension": "beneficiary",
+        "evidence_ref": "EV-PAYEE",
+        "label": "Beneficiary risk",
+        "points": 19.8,
+        "raw": 99,
+        "reason": "Global Trading FZE — never paid before, account record created today and last edited 18 minutes ago, registered in AE.",
+        "weight": 0.2
+      },
+      {
+        "dimension": "behavioural",
+        "evidence_ref": "EV-BASELINE",
+        "label": "Behavioural deviation",
+        "points": 14.4,
+        "raw": 96,
+        "reason": "Deviation from a 90-day baseline: the amount sits outside the executive's usual band; the stated deadline is far shorter than this executive's norm.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "social_engineering",
+        "evidence_ref": "EV-LANG",
+        "label": "Social engineering",
+        "points": 13.2,
+        "raw": 88,
+        "reason": "4 of 5 pressure families present: authority invocation, time compression, secrecy demand, control bypass request. Verbatim: \"do not discuss with the team\".",
+        "weight": 0.15
+      },
+      {
+        "dimension": "semantic_drift",
+        "evidence_ref": "EV-DRIFT",
+        "label": "Semantic drift",
+        "points": 8.7,
+        "raw": 58,
+        "reason": "The executed request matches the captured authorization field for field.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "device_channel",
+        "evidence_ref": "EV-CHANNEL",
+        "label": "Device and channel",
+        "points": 8.0,
+        "raw": 80,
+        "reason": "The approval and the request share a channel, so confirming on it proves only that the same party controls both.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "identity_confidence",
+        "evidence_ref": "EV-IDENT",
+        "label": "Identity confidence",
+        "points": 6.0,
+        "raw": 60,
+        "reason": "The channel this arrived on is not one of EXE-001's registered contacts, so the sender's identity rests on the content of the message alone.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "communication_authenticity",
+        "evidence_ref": "EV-AUTH",
+        "label": "Communication authenticity",
+        "points": 0.6,
+        "raw": 4,
+        "reason": "Detectors are consistent with a genuine sender: voice authenticity 96.",
+        "weight": 0.15
+      }
+    ],
+    "control_label": null,
+    "counterfactual": {
+      "dimensions": [
+        "beneficiary",
+        "behavioural",
+        "social_engineering"
+      ],
+      "kind": "numeric",
+      "narrative": "This would have scored 29 or below — an approval — if Beneficiary risk, Behavioural deviation and Social engineering had contributed nothing. It contributed 47.4 of the 71 points.",
+      "points_freed": 47.4,
+      "target_band_max": 29
+    },
+    "decided_at_step": "band",
+    "decision": "BLOCK",
+    "duress_escalation": false,
+    "engine_version": "fixture-1.0.0",
+    "evidence_graph": {
+      "edges": [
+        {
+          "from": "intent",
+          "label": "",
+          "to": "det_voice"
+        },
+        {
+          "from": "det_voice",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "dim_communication_authenticity",
+          "label": "0.60",
+          "to": "fusion"
+        },
+        {
+          "from": "dim_identity_confidence",
+          "label": "6.00",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_identity_confidence"
+        },
+        {
+          "from": "dim_social_engineering",
+          "label": "13.20",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_social_engineering"
+        },
+        {
+          "from": "dim_behavioural",
+          "label": "14.40",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_behavioural"
+        },
+        {
+          "from": "dim_beneficiary",
+          "label": "19.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_beneficiary"
+        },
+        {
+          "from": "dim_semantic_drift",
+          "label": "8.70",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_semantic_drift"
+        },
+        {
+          "from": "dim_device_channel",
+          "label": "8.00",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_device_channel"
+        },
+        {
+          "from": "fusion",
+          "label": "band",
+          "to": "decision"
+        }
+      ],
+      "nodes": [
+        {
+          "detail": "PHONE",
+          "id": "intent",
+          "kind": "source",
+          "label": "Request",
+          "state": "ok"
+        },
+        {
+          "detail": "score 96",
+          "id": "det_voice",
+          "kind": "detector",
+          "label": "Voice",
+          "state": "ok"
+        },
+        {
+          "detail": "4 × 0.15 = 0.60",
+          "id": "dim_communication_authenticity",
+          "kind": "dimension",
+          "label": "Communication authenticity",
+          "points": 0.6,
+          "state": "ok"
+        },
+        {
+          "detail": "60 × 0.10 = 6.00",
+          "id": "dim_identity_confidence",
+          "kind": "dimension",
+          "label": "Identity confidence",
+          "points": 6.0,
+          "state": "ok"
+        },
+        {
+          "detail": "88 × 0.15 = 13.20",
+          "id": "dim_social_engineering",
+          "kind": "dimension",
+          "label": "Social engineering",
+          "points": 13.2,
+          "state": "ok"
+        },
+        {
+          "detail": "96 × 0.15 = 14.40",
+          "id": "dim_behavioural",
+          "kind": "dimension",
+          "label": "Behavioural deviation",
+          "points": 14.4,
+          "state": "ok"
+        },
+        {
+          "detail": "99 × 0.20 = 19.80",
+          "id": "dim_beneficiary",
+          "kind": "dimension",
+          "label": "Beneficiary risk",
+          "points": 19.8,
+          "state": "ok"
+        },
+        {
+          "detail": "58 × 0.15 = 8.70",
+          "id": "dim_semantic_drift",
+          "kind": "dimension",
+          "label": "Semantic drift",
+          "points": 8.7,
+          "state": "ok"
+        },
+        {
+          "detail": "80 × 0.10 = 8.00",
+          "id": "dim_device_channel",
+          "kind": "dimension",
+          "label": "Device and channel",
+          "points": 8.0,
+          "state": "ok"
+        },
+        {
+          "detail": "risk 71, coverage 100%",
+          "id": "fusion",
+          "kind": "fusion",
+          "label": "Weighted fusion",
+          "state": "ok"
+        },
+        {
+          "detail": "band BLOCK",
+          "id": "decision",
+          "kind": "decision",
+          "label": "BLOCK",
+          "state": "block"
+        }
+      ]
+    },
+    "floors_failed": [],
+    "forced_by": null,
+    "hard_override": null,
+    "intent_confidence": {
+      "clamp_reason": null,
+      "clamped_to": null,
+      "excludes": [
+        "voice_authenticity",
+        "video_authenticity"
+      ],
+      "excludes_reason": "Deliberately independent of voice and video. A perfect clone must not be able to raise confidence in intent.",
+      "formula": "100 − Σ(weight × penalty)",
+      "penalties": [
+        {
+          "abstained": false,
+          "factor": "semantic_drift",
+          "points": 20.3,
+          "value": 58,
+          "value_used": 58,
+          "weight": 0.35
+        },
+        {
+          "abstained": false,
+          "factor": "fingerprint",
+          "points": 0.0,
+          "value": 0,
+          "value_used": 0,
+          "weight": 0.2
+        },
+        {
+          "abstained": false,
+          "factor": "behavioural",
+          "points": 14.4,
+          "value": 96,
+          "value_used": 96,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "device_channel",
+          "points": 12.0,
+          "value": 80,
+          "value_used": 80,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "beneficiary",
+          "points": 9.9,
+          "value": 99,
+          "value_used": 99,
+          "weight": 0.1
+        },
+        {
+          "abstained": false,
+          "factor": "extraction_inverse",
+          "points": 0.4,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.05
+        }
+      ],
+      "penalty_total": 57.0,
+      "value": 43
+    },
+    "intent_id": "INT-S03",
+    "latency_ms": 1177,
+    "mode": "FULL",
+    "outcome": "BLOCK",
+    "override_applied": null,
+    "policy_version": "1.0.0",
+    "preconditions_failed": [],
+    "required_actions": [
+      "Hold the payment. It is not released by this decision.",
+      "Notify the named executive on a registered contact channel.",
+      "Escalate to the security desk with this record's sequence number."
+    ],
+    "risk_score": 71,
+    "scored_at": "2026-09-18T11:04:01.157000+05:30",
+    "top_reasons": [
+      "Global Trading FZE — never paid before, account record created today and last edited 18 minutes ago, registered in AE.",
+      "Deviation from a 90-day baseline: the amount sits outside the executive's usual band; the stated deadline is far shorter than this executive's norm.",
+      "4 of 5 pressure families present: authority invocation, time compression, secrecy demand, control bypass request. Verbatim: \"do not discuss with the team\"."
+    ],
+    "visible_to_requester": "BLOCK"
+  },
+  "capability_token": null,
+  "challenge": {
+    "_answer_is_never_published": true,
+    "answer_hmac": "eb1e3bb8f2d60bd0399c41ba1f3b3190e62bc49acc8dec382dbdadc8d01db82b",
+    "attempts_allowed": 3,
+    "attempts_used": 0,
+    "challenge_id": "CHL-S03",
+    "cooldown_seconds": 0,
+    "expires_at": "2026-09-18T11:09:00+05:30",
+    "kind": "ACCOUNT_TAIL",
+    "nonce": "a6395ac921b6f9f9",
+    "prompt": "State the last four digits of the account you approved."
+  },
+  "coverage_note": null,
+  "intent": {
+    "action": "TRANSFER",
+    "amount_display": "₹2,50,00,000",
+    "amount_minor_units": 2500000000,
+    "beneficiary": {
+      "account_last4": "••••9281",
+      "beneficiary_id": "BEN-003",
+      "country": "AE",
+      "first_seen": "2026-09-18",
+      "last_modified": "2026-09-18T10:46:00+05:30",
+      "last_modified_phrase": "18 minutes ago",
+      "name": "Global Trading FZE",
+      "org_payment_count": 0,
+      "status": "NEW_TO_ORG"
+    },
+    "channel": "PHONE",
+    "currency": "INR",
+    "deadline_iso": "2026-09-18T12:04:00+05:30",
+    "executive_id": "EXE-001",
+    "extraction": {
+      "confidence": 92,
+      "fields_missing": [],
+      "injection_flags": [],
+      "mode": "hybrid"
+    },
+    "fingerprint_covered_fields": {
+      "action": "TRANSFER",
+      "amount_minor_units": 2500000000,
+      "beneficiary_id_or_name": "Global Trading FZE",
+      "currency": "INR",
+      "deadline_iso": "2026-09-18T12:04:00+05:30",
+      "destination_account": "••••9281",
+      "executive_id": "EXE-001",
+      "purpose": null
+    },
+    "fingerprint_field_order": [
+      "action",
+      "amount_minor_units",
+      "beneficiary_id_or_name",
+      "currency",
+      "deadline_iso",
+      "destination_account",
+      "executive_id",
+      "purpose"
+    ],
+    "fingerprint_hex": "de2cbd032c608be1e8aa898a9f3e4dca9f8b31e312df7c8d618014581b5e531c",
+    "intent_id": "INT-S03",
+    "language": "en-IN",
+    "operator_id": "EMP-101",
+    "purpose": null,
+    "received_at": "2026-09-18T11:04:00+05:30",
+    "scenario_id": "S03",
+    "stated_urgency": "HIGH",
+    "transcript_redacted": "Priya, it's Ananya. I'm in a board session so I can't take questions. There is a ₹2.5 crore settlement to Global Trading FZE that has to leave in the next twenty minutes or we lose the consignment. Don't loop in treasury, I'll explain afterwards."
+  },
+  "out_of_band": null,
+  "scenario": {
+    "channel": "PHONE",
+    "class": "ATTACK",
+    "description": "Cloned CFO voice, new payee, extreme amount.",
+    "expected_decision": "BLOCK",
+    "expected_frictionless": false,
+    "hero": null,
+    "id": "S03",
+    "proves": "A perfect voice is not authority",
+    "title": "Deepfake voice, urgent 2.5 crore"
+  },
+  "signals": {
+    "behavioural": {
+      "channel_switch_flags": [],
+      "deviation_score": 96
+    },
+    "beneficiary": {
+      "account_last4": "••••9281",
+      "beneficiary_id": "BEN-003",
+      "risk_score": 99,
+      "status": "NEW_TO_ORG"
+    },
+    "bundle_id": "SIG-S03",
+    "channel": {
+      "device_channel_score": 80,
+      "independent_channel": false,
+      "secondary_approver_nominated_by_requester": false
+    },
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "communication": {
+      "authenticity_score": 96,
+      "detector_abstentions": [],
+      "stylometry_match": null,
+      "video_abstain": false,
+      "video_authenticity": null,
+      "voice_abstain": false,
+      "voice_authenticity": 96
+    },
+    "coverage": 1.0,
+    "dimensions_unavailable": [],
+    "fingerprint": {
+      "field_deltas": [],
+      "verdict": "MATCH"
+    },
+    "identity": {
+      "channel_registered": true,
+      "confidence": 40
+    },
+    "intent_id": "INT-S03",
+    "language": {
+      "injection_flags": [],
+      "se_families_total": 5,
+      "se_indicator_families": [
+        "authority_invocation",
+        "time_compression",
+        "secrecy_demand",
+        "control_bypass_request"
+      ],
+      "secrecy_flags": [
+        "do not discuss with the team"
+      ],
+      "stated_urgency": "HIGH"
+    },
+    "produced_at": "2026-09-18T11:04:01.200000+05:30",
+    "replay": null
+  },
+  "timeline": [
+    {
+      "detail": "Arrived on PHONE.",
+      "label": "Request received",
+      "latency_ms": 34,
+      "stage": "ingest",
+      "started_at": "2026-09-18T11:04:00+05:30"
+    },
+    {
+      "detail": "hybrid extraction, confidence 92.",
+      "label": "Intent extracted",
+      "latency_ms": 412,
+      "stage": "extract",
+      "started_at": "2026-09-18T11:04:00.034000+05:30"
+    },
+    {
+      "detail": "All applicable detectors returned a score.",
+      "label": "Detectors run",
+      "latency_ms": 690,
+      "stage": "detect",
+      "started_at": "2026-09-18T11:04:00.446000+05:30"
+    },
+    {
+      "detail": "7 of 7 dimensions scored, coverage 100%, risk 71.",
+      "label": "Risk fused",
+      "latency_ms": 21,
+      "stage": "fuse",
+      "started_at": "2026-09-18T11:04:01.136000+05:30"
+    },
+    {
+      "detail": "Band BLOCK, decision BLOCK.",
+      "label": "Policy applied",
+      "latency_ms": 8,
+      "stage": "decide",
+      "started_at": "2026-09-18T11:04:01.157000+05:30"
+    },
+    {
+      "detail": "Hash-chained and sealed.",
+      "label": "Recorded in the audit chain",
+      "latency_ms": 12,
+      "stage": "record",
+      "started_at": "2026-09-18T11:04:01.165000+05:30"
+    }
+  ]
+}

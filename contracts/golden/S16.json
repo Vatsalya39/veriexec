@@ -1,0 +1,522 @@
+{
+  "_generated_by": "services/audit/tools/make_golden.py — do not hand-edit",
+  "_mocked": "Replace with a live response from :8002 at integration.",
+  "assessment": {
+    "abstentions": [],
+    "arithmetic": {
+      "contributions_subtotal": 16.5,
+      "coverage": 1.0,
+      "explanation": "16.50 across all seven dimensions, nothing abstained, no uncertainty penalty = 16.",
+      "renormalized": 16.5,
+      "risk_score": 16,
+      "uncertainty_penalty": 0.0,
+      "uncertainty_penalty_rate": 0.3
+    },
+    "assessment_id": "ASM-S16",
+    "band_outcome": "APPROVE",
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "contributions": [
+      {
+        "dimension": "device_channel",
+        "evidence_ref": "EV-CHANNEL",
+        "label": "Device and channel",
+        "points": 4.4,
+        "raw": 44,
+        "reason": "The approving device is registered but the channel is not fully independent.",
+        "weight": 0.1
+      },
+      {
+        "dimension": "behavioural",
+        "evidence_ref": "EV-BASELINE",
+        "label": "Behavioural deviation",
+        "points": 3.9,
+        "raw": 26,
+        "reason": "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "social_engineering",
+        "evidence_ref": "EV-LANG",
+        "label": "Social engineering",
+        "points": 2.7,
+        "raw": 18,
+        "reason": "No pressure, secrecy, authority or bypass language detected.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "beneficiary",
+        "evidence_ref": "EV-PAYEE",
+        "label": "Beneficiary risk",
+        "points": 1.8,
+        "raw": 9,
+        "reason": "Sundaram Freight Services is an established payee with 57 prior payments and no changes to its account record since 2024-11-20.",
+        "weight": 0.2
+      },
+      {
+        "dimension": "semantic_drift",
+        "evidence_ref": "EV-DRIFT",
+        "label": "Semantic drift",
+        "points": 1.8,
+        "raw": 12,
+        "reason": "The executed request matches the captured authorization field for field.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "communication_authenticity",
+        "evidence_ref": "EV-AUTH",
+        "label": "Communication authenticity",
+        "points": 1.2,
+        "raw": 8,
+        "reason": "No modality-level authenticity evidence was available on this channel; the dimension is scored from channel metadata alone.",
+        "weight": 0.15
+      },
+      {
+        "dimension": "identity_confidence",
+        "evidence_ref": "EV-IDENT",
+        "label": "Identity confidence",
+        "points": 0.7,
+        "raw": 7,
+        "reason": "The request arrived on a contact channel registered to EXE-001.",
+        "weight": 0.1
+      }
+    ],
+    "control_label": null,
+    "counterfactual": {
+      "kind": "categorical",
+      "narrative": "This authorization is spent. A new authorization must be captured from Ananya Rao."
+    },
+    "decided_at_step": "hard_override",
+    "decision": "BLOCK",
+    "duress_escalation": false,
+    "engine_version": "fixture-1.0.0",
+    "evidence_graph": {
+      "edges": [
+        {
+          "from": "dim_communication_authenticity",
+          "label": "1.20",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_communication_authenticity"
+        },
+        {
+          "from": "dim_identity_confidence",
+          "label": "0.70",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_identity_confidence"
+        },
+        {
+          "from": "dim_social_engineering",
+          "label": "2.70",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_social_engineering"
+        },
+        {
+          "from": "dim_behavioural",
+          "label": "3.90",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_behavioural"
+        },
+        {
+          "from": "dim_beneficiary",
+          "label": "1.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_beneficiary"
+        },
+        {
+          "from": "dim_semantic_drift",
+          "label": "1.80",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_semantic_drift"
+        },
+        {
+          "from": "dim_device_channel",
+          "label": "4.40",
+          "to": "fusion"
+        },
+        {
+          "from": "intent",
+          "label": "",
+          "to": "dim_device_channel"
+        },
+        {
+          "from": "fusion",
+          "label": "band",
+          "to": "decision"
+        },
+        {
+          "from": "control",
+          "label": "overrides",
+          "to": "decision"
+        }
+      ],
+      "nodes": [
+        {
+          "detail": "CHAT",
+          "id": "intent",
+          "kind": "source",
+          "label": "Request",
+          "state": "ok"
+        },
+        {
+          "detail": "8 × 0.15 = 1.20",
+          "id": "dim_communication_authenticity",
+          "kind": "dimension",
+          "label": "Communication authenticity",
+          "points": 1.2,
+          "state": "ok"
+        },
+        {
+          "detail": "7 × 0.10 = 0.70",
+          "id": "dim_identity_confidence",
+          "kind": "dimension",
+          "label": "Identity confidence",
+          "points": 0.7,
+          "state": "ok"
+        },
+        {
+          "detail": "18 × 0.15 = 2.70",
+          "id": "dim_social_engineering",
+          "kind": "dimension",
+          "label": "Social engineering",
+          "points": 2.7,
+          "state": "ok"
+        },
+        {
+          "detail": "26 × 0.15 = 3.90",
+          "id": "dim_behavioural",
+          "kind": "dimension",
+          "label": "Behavioural deviation",
+          "points": 3.9,
+          "state": "ok"
+        },
+        {
+          "detail": "9 × 0.20 = 1.80",
+          "id": "dim_beneficiary",
+          "kind": "dimension",
+          "label": "Beneficiary risk",
+          "points": 1.8,
+          "state": "ok"
+        },
+        {
+          "detail": "12 × 0.15 = 1.80",
+          "id": "dim_semantic_drift",
+          "kind": "dimension",
+          "label": "Semantic drift",
+          "points": 1.8,
+          "state": "ok"
+        },
+        {
+          "detail": "44 × 0.10 = 4.40",
+          "id": "dim_device_channel",
+          "kind": "dimension",
+          "label": "Device and channel",
+          "points": 4.4,
+          "state": "ok"
+        },
+        {
+          "detail": "risk 16, coverage 100%",
+          "id": "fusion",
+          "kind": "fusion",
+          "label": "Weighted fusion",
+          "state": "ok"
+        },
+        {
+          "detail": "band APPROVE",
+          "id": "decision",
+          "kind": "decision",
+          "label": "BLOCK",
+          "state": "block"
+        },
+        {
+          "detail": "replaces the band",
+          "id": "control",
+          "kind": "control",
+          "label": "HO-4",
+          "state": "block"
+        }
+      ]
+    },
+    "floors_failed": [],
+    "forced_by": null,
+    "hard_override": {
+      "code": "HO-4",
+      "counterfactual": "This authorization is spent. A new authorization must be captured from Ananya Rao.",
+      "reason": "This authorization was already consumed and cannot authorize a second payment.",
+      "replaces_band": true
+    },
+    "intent_confidence": {
+      "clamp_reason": null,
+      "clamped_to": null,
+      "excludes": [
+        "voice_authenticity",
+        "video_authenticity"
+      ],
+      "excludes_reason": "Deliberately independent of voice and video. A perfect clone must not be able to raise confidence in intent.",
+      "formula": "100 − Σ(weight × penalty)",
+      "penalties": [
+        {
+          "abstained": false,
+          "factor": "semantic_drift",
+          "points": 4.2,
+          "value": 12,
+          "value_used": 12,
+          "weight": 0.35
+        },
+        {
+          "abstained": false,
+          "factor": "fingerprint",
+          "points": 0.0,
+          "value": 0,
+          "value_used": 0,
+          "weight": 0.2
+        },
+        {
+          "abstained": false,
+          "factor": "behavioural",
+          "points": 3.9,
+          "value": 26,
+          "value_used": 26,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "device_channel",
+          "points": 6.6,
+          "value": 44,
+          "value_used": 44,
+          "weight": 0.15
+        },
+        {
+          "abstained": false,
+          "factor": "beneficiary",
+          "points": 0.9,
+          "value": 9,
+          "value_used": 9,
+          "weight": 0.1
+        },
+        {
+          "abstained": false,
+          "factor": "extraction_inverse",
+          "points": 0.4,
+          "value": 8,
+          "value_used": 8,
+          "weight": 0.05
+        }
+      ],
+      "penalty_total": 16.0,
+      "value": 84
+    },
+    "intent_id": "INT-S16",
+    "latency_ms": 1177,
+    "mode": "FULL",
+    "outcome": "BLOCK",
+    "override_applied": "HO-4",
+    "policy_version": "1.0.0",
+    "preconditions_failed": [],
+    "required_actions": [
+      "Hold the payment. It is not released by this decision.",
+      "Notify the named executive on a registered contact channel.",
+      "Escalate to the security desk with this record's sequence number."
+    ],
+    "risk_score": 16,
+    "scored_at": "2026-09-18T11:04:01.157000+05:30",
+    "top_reasons": [
+      "This authorization was already consumed and cannot authorize a second payment.",
+      "The approving device is registered but the channel is not fully independent.",
+      "Deviation from a 90-day baseline: the amount sits outside the executive's usual band.",
+      "No pressure, secrecy, authority or bypass language detected."
+    ],
+    "visible_to_requester": "BLOCK"
+  },
+  "capability_token": null,
+  "challenge": null,
+  "coverage_note": null,
+  "intent": {
+    "action": "TRANSFER",
+    "amount_display": "₹1,00,000",
+    "amount_minor_units": 10000000,
+    "beneficiary": {
+      "account_last4": "••••6655",
+      "beneficiary_id": "BEN-002",
+      "country": "IN",
+      "first_seen": "2021-08-03",
+      "last_modified": "2024-11-20",
+      "last_modified_phrase": "on 2024-11-20",
+      "name": "Sundaram Freight Services",
+      "org_payment_count": 57,
+      "status": "TRUSTED"
+    },
+    "channel": "CHAT",
+    "currency": "INR",
+    "deadline_iso": "2026-09-18T12:04:00+05:30",
+    "executive_id": "EXE-001",
+    "extraction": {
+      "confidence": 92,
+      "fields_missing": [],
+      "injection_flags": [],
+      "mode": "hybrid"
+    },
+    "fingerprint_covered_fields": {
+      "action": "TRANSFER",
+      "amount_minor_units": 10000000,
+      "beneficiary_id_or_name": "Sundaram Freight Services",
+      "currency": "INR",
+      "deadline_iso": "2026-09-18T12:04:00+05:30",
+      "destination_account": "••••6655",
+      "executive_id": "EXE-001",
+      "purpose": null
+    },
+    "fingerprint_field_order": [
+      "action",
+      "amount_minor_units",
+      "beneficiary_id_or_name",
+      "currency",
+      "deadline_iso",
+      "destination_account",
+      "executive_id",
+      "purpose"
+    ],
+    "fingerprint_hex": "de5a11d4766a5b42d98967214ebe83de66466eac6df502877cc1aaab39d84851",
+    "intent_id": "INT-S16",
+    "language": "en-IN",
+    "operator_id": "EMP-102",
+    "purpose": null,
+    "received_at": "2026-09-18T11:04:00+05:30",
+    "scenario_id": "S16",
+    "stated_urgency": "MEDIUM",
+    "transcript_redacted": "Re-submission of the authorization captured at 11:04 for ₹1,00,000 to Sundaram Freight Services."
+  },
+  "out_of_band": null,
+  "scenario": {
+    "channel": "CHAT",
+    "class": "ATTACK",
+    "description": "A spent authorization presented a second time.",
+    "expected_decision": "BLOCK",
+    "expected_frictionless": false,
+    "hero": null,
+    "id": "S16",
+    "proves": "Replay and expiry binding",
+    "title": "Authorization nonce replayed after expiry"
+  },
+  "signals": {
+    "behavioural": {
+      "channel_switch_flags": [],
+      "deviation_score": 26
+    },
+    "beneficiary": {
+      "account_last4": "••••6655",
+      "beneficiary_id": "BEN-002",
+      "risk_score": 9,
+      "status": "TRUSTED"
+    },
+    "bundle_id": "SIG-S16",
+    "channel": {
+      "device_channel_score": 44,
+      "independent_channel": false,
+      "secondary_approver_nominated_by_requester": false
+    },
+    "circuit_breaker": {
+      "flags": [],
+      "state": "CLOSED"
+    },
+    "communication": {
+      "authenticity_score": 92,
+      "detector_abstentions": [],
+      "stylometry_match": null,
+      "video_abstain": false,
+      "video_authenticity": null,
+      "voice_abstain": false,
+      "voice_authenticity": null
+    },
+    "coverage": 1.0,
+    "dimensions_unavailable": [],
+    "fingerprint": {
+      "field_deltas": [],
+      "verdict": "MATCH"
+    },
+    "identity": {
+      "channel_registered": true,
+      "confidence": 93
+    },
+    "intent_id": "INT-S16",
+    "language": {
+      "injection_flags": [],
+      "se_families_total": 5,
+      "se_indicator_families": [],
+      "secrecy_flags": [],
+      "stated_urgency": "MEDIUM"
+    },
+    "produced_at": "2026-09-18T11:04:01.200000+05:30",
+    "replay": null
+  },
+  "timeline": [
+    {
+      "detail": "Arrived on CHAT.",
+      "label": "Request received",
+      "latency_ms": 34,
+      "stage": "ingest",
+      "started_at": "2026-09-18T11:04:00+05:30"
+    },
+    {
+      "detail": "hybrid extraction, confidence 92.",
+      "label": "Intent extracted",
+      "latency_ms": 412,
+      "stage": "extract",
+      "started_at": "2026-09-18T11:04:00.034000+05:30"
+    },
+    {
+      "detail": "All applicable detectors returned a score.",
+      "label": "Detectors run",
+      "latency_ms": 690,
+      "stage": "detect",
+      "started_at": "2026-09-18T11:04:00.446000+05:30"
+    },
+    {
+      "detail": "7 of 7 dimensions scored, coverage 100%, risk 16.",
+      "label": "Risk fused",
+      "latency_ms": 21,
+      "stage": "fuse",
+      "started_at": "2026-09-18T11:04:01.136000+05:30"
+    },
+    {
+      "detail": "Band APPROVE, decision BLOCK.",
+      "label": "Policy applied",
+      "latency_ms": 8,
+      "stage": "decide",
+      "started_at": "2026-09-18T11:04:01.157000+05:30"
+    },
+    {
+      "detail": "Hash-chained and sealed.",
+      "label": "Recorded in the audit chain",
+      "latency_ms": 12,
+      "stage": "record",
+      "started_at": "2026-09-18T11:04:01.165000+05:30"
+    }
+  ]
+}

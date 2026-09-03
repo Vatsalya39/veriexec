@@ -1,0 +1,32 @@
+{
+  "_note": "FROZEN at G0 — transcribed verbatim from 00_SHARED_CONTEXT.md §8. Relative dates are resolved by the shared clock helper at load time; never hard-code them.",
+  "beneficiaries": [
+    { "beneficiary_id": "BEN-001", "name": "Kalyani Forge Components Pvt Ltd", "account": "HDFC0001234567890",
+      "first_seen": "2019-04-12", "last_modified": "2019-04-12", "country": "IN",
+      "paid_by": ["EXE-001", "EMP-101", "EMP-102"], "org_payment_count": 214, "status": "TRUSTED" },
+
+    { "beneficiary_id": "BEN-002", "name": "Sundaram Freight Services", "account": "ICIC0009988776655",
+      "first_seen": "2021-08-03", "last_modified": "2024-11-20", "country": "IN",
+      "paid_by": ["EXE-001", "EMP-102"], "org_payment_count": 57, "status": "TRUSTED" },
+
+    { "beneficiary_id": "BEN-003", "name": "Global Trading FZE", "account": "ADCB0000099281",
+      "first_seen": "<TODAY>", "last_modified": "<NOW-18min>", "country": "AE",
+      "paid_by": [], "org_payment_count": 0, "status": "NEW_TO_ORG" },
+
+    { "beneficiary_id": "BEN-004", "name": "Kalyanl Forge Componets Pvt Ltd", "account": "HDFC0007777000111",
+      "first_seen": "<TODAY>", "last_modified": "<TODAY>", "country": "IN",
+      "paid_by": [], "org_payment_count": 0, "status": "SUSPECTED_TYPOSQUAT_OF:BEN-001" },
+
+    { "beneficiary_id": "BEN-005", "name": "Meridian Employee Payroll Pool", "account": "SBIN0000000001",
+      "first_seen": "2017-01-02", "last_modified": "2017-01-02", "country": "IN",
+      "paid_by": ["EXE-001", "EXE-002", "EMP-101", "EMP-102"], "org_payment_count": 1180, "status": "TRUSTED" },
+
+    { "beneficiary_id": "BEN-006", "name": "Orion Metals DMCC", "account": "EBIL0000445566",
+      "first_seen": "2023-02-14", "last_modified": "<NOW-2h>", "country": "AE",
+      "paid_by": ["EMP-102"], "org_payment_count": 12, "status": "RECENTLY_MODIFIED" },
+
+    { "beneficiary_id": "BEN-007", "name": "Zenith Marine Supplies", "account": "AXIS0004411223",
+      "first_seen": "2024-06-19", "last_modified": "2024-06-19", "country": "IN",
+      "paid_by": ["EMP-102"], "org_payment_count": 9, "status": "TRUSTED_NEW_TO_EXECUTIVE" }
+  ]
+}

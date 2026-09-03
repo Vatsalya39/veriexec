@@ -1,0 +1,26 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+apps/console/dist/
+
+# Runtime artifacts
+var/*.db
+var/*.db-wal
+var/*.db-shm
+var/audit_head.txt
+var/canary.jsonl
+var/bench_latest.json
+
+# Secrets — never commit
+.env
+dev/keys/
+
+# OS
+.DS_Store
+Thumbs.db

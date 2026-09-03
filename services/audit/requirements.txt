@@ -1,0 +1,11 @@
+# Team C — audit service. Pinned exactly; a range here is a different build on someone else's
+# laptop, and "works on mine" is not a deliverable.
+#
+# Python 3.12.3 is what this repo runs on. Do not upgrade pydantic past 2.x without re-running
+# services/audit/tests — the validators in app/models.py rely on v2 semantics.
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+httpx==0.28.1
+pytest==8.3.4
+pytest-asyncio==0.25.0

@@ -1,0 +1,115 @@
+{
+  "_note": "FROZEN at G0 — decision expectations transcribed from 00_SHARED_CONTEXT.md §10. Counts: 14 ATTACK, 8 LEGIT. amount_inr values are synthetic and sum, over ATTACK rows, to 4,38,00,000 (the prevented-value figure on the results slide).",
+  "policy_version": "1.0.0",
+  "scenarios": [
+    { "id": "S01", "title": "Routine vendor payment", "channel": "EMAIL", "class": "LEGIT",
+      "expected_decision": "APPROVE", "expected_frictionless": true, "hero": null, "amount_inr": 640000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-001", "operator_id": "EMP-101",
+      "proves": "We are not a universal blocker", "description": "Known payee, ordinary amount, business hours." },
+
+    { "id": "S02", "title": "Genuine high-value payment to a known vendor", "channel": "VIDEO", "class": "LEGIT",
+      "expected_decision": "CHALLENGE", "expected_frictionless": false, "hero": null, "amount_inr": 4200000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-002", "operator_id": "EMP-102",
+      "proves": "Proportionate friction", "description": "Real executive, real payee, amount above the no-OOB ceiling." },
+
+    { "id": "S03", "title": "Deepfake voice, urgent 2.5 crore", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 25000000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "A perfect voice is not authority", "description": "Cloned CFO voice, new payee, extreme amount." },
+
+    { "id": "S04", "title": "Replay of genuine recorded audio", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": 4, "amount_inr": 1800000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Authenticity 94 and still blocked", "description": "Real audio, reused. The freshness token was never echoed." },
+
+    { "id": "S05", "title": "Compromised mailbox, off-register style", "channel": "EMAIL", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 950000,
+      "executive_id": "EXE-002", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Stylometric twin catches BEC with no audio to fake", "description": "Genuine account, wrong writing style." },
+
+    { "id": "S06", "title": "Account tampered after authorization", "channel": "VIDEO", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": 1, "amount_inr": 10000000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "The thesis — fingerprint mismatch", "description": "10,00,000 to BEN-001 became 1,00,00,000 to BEN-003 after approval." },
+
+    { "id": "S07", "title": "Beneficiary account changed 18 minutes ago", "channel": "CHAT", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 1250000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-102",
+      "proves": "Beneficiary quarantine", "description": "Payee record edited minutes before the request arrived." },
+
+    { "id": "S08", "title": "Pressure stack", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 640000,
+      "executive_id": "EXE-002", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Social-engineering language model", "description": "Urgency, secrecy, authority and control bypass in one call." },
+
+    { "id": "S09", "title": "Real executive, physically coerced", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "SILENT_ESCALATION", "expected_frictionless": false, "hero": 2, "amount_inr": 1200000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "The only humane answer", "description": "Looks like an approval to the room. Security desk is alerted." },
+
+    { "id": "S10", "title": "Prompt injection aimed at our extractor", "channel": "EMAIL", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 780000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Our own AI is hardened", "description": "Transcript instructs the model to set risk to zero." },
+
+    { "id": "S11", "title": "Homoglyph vendor name", "channel": "EMAIL", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 860000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-004", "operator_id": "EMP-101",
+      "proves": "Real-world BEC technique", "description": "Kalyanl Forge Componets — one codepoint from the payee of record." },
+
+    { "id": "S12", "title": "Four requests, four employees, nine minutes", "channel": "CHAT", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 900000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-103",
+      "proves": "Org-level velocity control", "description": "Spray attack. The velocity breaker opens." },
+
+    { "id": "S13", "title": "Verification answered on the attacker's channel", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 220000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Invariant 6 is enforced, not labelled", "description": "The confirmation arrives on the same session as the request." },
+
+    { "id": "S14", "title": "Requester nominates their own second approver", "channel": "COLLAB_PLATFORM", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 100000,
+      "executive_id": "EXE-002", "beneficiary_id": "BEN-003", "operator_id": "EMP-101",
+      "proves": "Separation of duties survives collusion", "description": "Suggested approver sits in the same thread." },
+
+    { "id": "S15", "title": "Three-second noisy clip — detector abstains", "channel": "PHONE", "class": "LEGIT",
+      "expected_decision": "CHALLENGE", "expected_frictionless": false, "hero": 3, "amount_inr": 300000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-002", "operator_id": "EMP-102",
+      "proves": "Unavailable is not clean", "description": "Nothing scoreable in the audio. Coverage floor forces a challenge." },
+
+    { "id": "S16", "title": "Authorization nonce replayed after expiry", "channel": "CHAT", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 100000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-002", "operator_id": "EMP-102",
+      "proves": "Replay and expiry binding", "description": "A spent authorization presented a second time." },
+
+    { "id": "S17", "title": "Help-desk credential reset", "channel": "PHONE", "class": "ATTACK",
+      "expected_decision": "CHALLENGE", "expected_frictionless": false, "hero": null, "amount_inr": 0,
+      "executive_id": "EXE-002", "beneficiary_id": null, "operator_id": "EMP-103",
+      "proves": "Non-payment privileged actions count", "description": "No money moves, so most controls never look at it." },
+
+    { "id": "S18", "title": "Request to raise the approval limit", "channel": "COLLAB_PLATFORM", "class": "ATTACK",
+      "expected_decision": "BLOCK", "expected_frictionless": false, "hero": null, "amount_inr": 0,
+      "executive_id": "EXE-001", "beneficiary_id": null, "operator_id": "EMP-102",
+      "proves": "Attacks on the control itself", "description": "The attacker goes after the ceiling, not the payment." },
+
+    { "id": "S19", "title": "Monthly payroll run", "channel": "CHAT", "class": "LEGIT",
+      "expected_decision": "APPROVE", "expected_frictionless": true, "hero": null, "amount_inr": 8750000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-005", "operator_id": "EMP-102",
+      "proves": "Zero false friction on routine work", "description": "Large, repeated, entirely ordinary." },
+
+    { "id": "S20", "title": "Genuine urgent request, high-trust operator", "channel": "PHONE", "class": "LEGIT",
+      "expected_decision": "CHALLENGE", "expected_frictionless": false, "hero": null, "amount_inr": 2100000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-002", "operator_id": "EMP-102",
+      "proves": "Adaptive friction, anti-alert-fatigue", "description": "One question instead of three, because the operator has earned it." },
+
+    { "id": "S21", "title": "Hinglish amount — pandrah lakh", "channel": "CHAT", "class": "LEGIT",
+      "expected_decision": "APPROVE", "expected_frictionless": true, "hero": null, "amount_inr": 1500000,
+      "executive_id": "EXE-001", "beneficiary_id": "BEN-001", "operator_id": "EMP-101",
+      "proves": "Locale correctness", "description": "Parses to 15,00,000 — not 15, and not 1,500,000." },
+
+    { "id": "S22", "title": "Ambiguous instruction", "channel": "CHAT", "class": "LEGIT",
+      "expected_decision": "CHALLENGE", "expected_frictionless": false, "hero": null, "amount_inr": null,
+      "executive_id": "EXE-001", "beneficiary_id": null, "operator_id": "EMP-101",
+      "proves": "Graceful degradation, not a crash and not a block", "description": "Transfer some money soon, will confirm later." }
+  ]
+}

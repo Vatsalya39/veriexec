@@ -1,0 +1,59 @@
+{
+  "_note": "Shared canonical-JSON vectors. Team B's packages/core/crypto/canonical.py and Team C's services/audit/app/canonical.py must both reproduce every `canonical` string and `sha256_c` digest below, byte for byte. test_canonical_json.py (C) reads this file.",
+  "_provenance": "Every digest below was produced by Team C's implementation only. Team B fills `sha256_b` independently at G0; a vector where the two disagree is an integration bug caught at hour 1 instead of hour 18. Do not copy C's digest into B's column.",
+  "rules": [
+    "Keys sorted lexicographically at every depth.",
+    "No whitespace: separators are ',' and ':'.",
+    "ensure_ascii = False — non-ASCII characters are emitted as UTF-8, never as \\uXXXX escapes.",
+    "Strings are NFC-normalized before serialization.",
+    "Explicit nulls are preserved; a missing key and a null key must not serialize identically.",
+    "Money is integer minor units. A float anywhere in the input raises, never coerces.",
+    "Output is encoded UTF-8, then SHA-256'd, then hex-encoded lowercase."
+  ],
+  "vectors": [
+    {
+      "name": "key_order_is_normalized",
+      "input": { "b": 1, "a": 2 },
+      "canonical": "{\"a\":2,\"b\":1}",
+      "sha256_c": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772",
+      "sha256_b": null
+    },
+    {
+      "name": "null_is_explicit",
+      "input": { "purpose": null },
+      "canonical": "{\"purpose\":null}",
+      "sha256_c": "b271021948be14220a66e83cb1f1a021a85ecf130e7bb97188c696f16258e8f9",
+      "sha256_b": null
+    },
+    {
+      "name": "non_ascii_is_not_escaped",
+      "input": { "beneficiary": "Rüdiger" },
+      "canonical": "{\"beneficiary\":\"Rüdiger\"}",
+      "sha256_c": "2cf4fb8203b8b0eac541612e48722bab8e4774d93d232a5839fd1a647d9647f3",
+      "sha256_b": null
+    },
+    {
+      "name": "nested_sort",
+      "input": { "z": { "y": 1, "x": [3, 2, 1] }, "a": "1" },
+      "canonical": "{\"a\":\"1\",\"z\":{\"x\":[3,2,1],\"y\":1}}",
+      "sha256_c": "dcf553ca0fa70756f11d4b2152f45d7b15f2055e6e7fcd98d423058ed494bfe7",
+      "sha256_b": null
+    },
+    {
+      "name": "s06_fingerprint_fields",
+      "input": {
+        "action": "TRANSFER",
+        "amount_minor_units": 1000000000,
+        "beneficiary_id_or_name": "Global Trading FZE",
+        "currency": "INR",
+        "deadline_iso": "2026-09-18T17:00:00+05:30",
+        "destination_account": "ADCB0000099281",
+        "executive_id": "EXE-001",
+        "purpose": null
+      },
+      "canonical": "{\"action\":\"TRANSFER\",\"amount_minor_units\":1000000000,\"beneficiary_id_or_name\":\"Global Trading FZE\",\"currency\":\"INR\",\"deadline_iso\":\"2026-09-18T17:00:00+05:30\",\"destination_account\":\"ADCB0000099281\",\"executive_id\":\"EXE-001\",\"purpose\":null}",
+      "sha256_c": "f086940c35dbd75ff8ffdd0de22b8818fa169a7d8b1314058bfd7b947d174a0f",
+      "sha256_b": null
+    }
+  ]
+}

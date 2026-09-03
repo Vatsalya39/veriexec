@@ -1,0 +1,88 @@
+{
+  "_note": "FROZEN at G0 — transcribed verbatim from 00_SHARED_CONTEXT.md §7. Do not invent personas.",
+  "company": { "name": "Meridian Steel & Logistics Pvt Ltd", "domain": "meridiansteel.example" },
+  "executives": [
+    {
+      "executive_id": "EXE-001",
+      "name": "Ananya Rao",
+      "role": "Group CFO",
+      "email": "ananya.rao@meridiansteel.example",
+      "known_numbers": ["+91 98xxx xx4402"],
+      "baseline": {
+        "median_amount_inr": 800000,
+        "p95_amount_inr": 4500000,
+        "max_ever_inr": 6200000,
+        "normal_hours_ist": "09:00-19:00",
+        "normal_weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+        "normal_countries": ["IN", "SG", "AE"],
+        "usual_actions": ["TRANSFER", "BENEFICIARY_CHANGE"],
+        "usual_beneficiaries": ["BEN-001", "BEN-002", "BEN-005"],
+        "initiates_payments_pct": 41
+      },
+      "devices": [
+        { "device_id": "DEV-EXE001-LAPTOP", "label": "MacBook Pro (office)", "registered": true, "oob_capable": false },
+        { "device_id": "DEV-EXE001-PHONE", "label": "iPhone 15 (registered authenticator)", "registered": true, "oob_capable": true }
+      ],
+      "duress_scheme": {
+        "id": "DURESS_LAST_DIGIT_7",
+        "kind": "numeric_substitution",
+        "_console_safe": false,
+        "spec": "In a coerced approval, the final digit of the destination account is stated as 7 when the true final digit is not 7.",
+        "why_this_design": "An attacker forcing her to read out an account number cannot tell a wrong digit from a mistake, and she can plausibly claim a slip. An obviously odd codeword would be recognised as a duress signal."
+      },
+      "stylometry_profile_hint": {
+        "register": "formal, concise, no exclamation marks",
+        "sign_off": "Best regards,\nAnanya",
+        "characteristic_phrases": ["please revert", "kindly note", "for your approval"],
+        "avg_sentence_words": 14,
+        "greeting": "Dear <name>,"
+      }
+    },
+    {
+      "executive_id": "EXE-002",
+      "name": "Vikram Shah",
+      "role": "Chief Executive Officer",
+      "email": "vikram.shah@meridiansteel.example",
+      "known_numbers": ["+91 99xxx xx7781"],
+      "baseline": {
+        "median_amount_inr": 250000,
+        "p95_amount_inr": 1200000,
+        "max_ever_inr": 1800000,
+        "normal_hours_ist": "08:00-22:00",
+        "normal_weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "normal_countries": ["IN", "GB", "US"],
+        "usual_actions": ["OTHER"],
+        "usual_beneficiaries": ["BEN-005"],
+        "initiates_payments_pct": 3
+      },
+      "devices": [
+        { "device_id": "DEV-EXE002-PHONE", "label": "Pixel 8 (registered authenticator)", "registered": true, "oob_capable": true }
+      ],
+      "duress_scheme": {
+        "id": "DURESS_PHRASE_ROUTINE",
+        "kind": "innocuous_token_phrase",
+        "_console_safe": false,
+        "spec": "The phrase 'please treat this as routine' appears anywhere in a coerced approval.",
+        "why_this_design": "It reads as ordinary corporate hedging, so a coercer hears compliance. The system knows the phrase is semantically contradictory on an urgent high-value request — that contradiction is the signal."
+      },
+      "stylometry_profile_hint": {
+        "register": "warm, longer sentences, occasional em-dash",
+        "sign_off": "Thanks,\nVikram",
+        "characteristic_phrases": ["let's move fast", "keep me posted", "good stuff"],
+        "avg_sentence_words": 22,
+        "greeting": "Hi <first_name> —"
+      }
+    }
+  ],
+  "employees": [
+    { "employee_id": "EMP-101", "name": "Priya Menon", "role": "Finance Analyst", "trust_score": 78,
+      "history": { "correct_escalations": 6, "missed_frauds": 1, "tenure_months": 14 } },
+    { "employee_id": "EMP-102", "name": "Rohit Iyer", "role": "Treasury Manager", "trust_score": 91,
+      "history": { "correct_escalations": 11, "missed_frauds": 0, "tenure_months": 52 } },
+    { "employee_id": "EMP-103", "name": "Kabir Nair", "role": "IT Help Desk", "trust_score": 54,
+      "history": { "correct_escalations": 1, "missed_frauds": 2, "tenure_months": 4 } }
+  ],
+  "security_officers": [
+    { "officer_id": "SEC-002", "name": "Devika Suresh", "role": "Security Operations Lead" }
+  ]
+}
