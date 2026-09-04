@@ -82,3 +82,27 @@ export function formatAgo(iso: string | null | undefined, nowIso?: string): stri
   const days = Math.round(hours / 24);
   return `${days}d ago`;
 }
+
+/**
+ * A duration a reader can compare at a glance: `34 ms`, `1.18 s`, `1:04`. Sub-second
+ * values keep their milliseconds because the whole claim of the engine is that the
+ * decision arrives in milliseconds — rounding that to `0 s` would erase the point.
+ */
+export function formatDuration(ms: number | null | undefined): string {
+  if (ms === null || ms === undefined || Number.isNaN(ms)) return "—";
+  const v = Math.max(0, ms);
+  if (v < 1000) return `${Math.round(v)} ms`;
+  if (v < 60_000) return `${(v / 1000).toFixed(v < 10_000 ? 2 : 1)} s`;
+  const total = Math.round(v / 1000);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
+/** `14:32:07.481` — the clock the console prints, local time, millisecond precision. */
+export function formatClock(iso: string | null | undefined): string {
+  if (!iso) return "--:--:--";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "--:--:--";
+  const d = new Date(t);
+  const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+}

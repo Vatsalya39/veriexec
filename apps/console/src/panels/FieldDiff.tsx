@@ -57,7 +57,7 @@ export function FieldDiff({ envelope }: { envelope: ScenarioEnvelope }) {
               </td>
             </tr>
           ))}
-          <tr style={verdict === "MISMATCH" ? { outline: "2px solid var(--block)", background: "#fff1f2" } : {}}>
+          <tr style={verdict === "MISMATCH" ? { outline: "2px solid var(--block)", background: "var(--tint-block)" } : {}}>
             <td className="mono-xs">fingerprint</td>
             <td className="mono-xs" colSpan={2}>
               {verdict === "MISMATCH"

@@ -1,19 +1,144 @@
 /**
- * The canonical stylesheet — one family, four sizes, tokens from tokens.ts. §23
- * No CDN fonts (venue wifi), no gradients, one shadow.
+ * The canonical stylesheet — the Provenant design system, in this repo's idiom. §23
+ *
+ * Direction: light *and* dark, neutral, card-led analytics. A four-step achromatic
+ * surface ladder (background → card → subtle → popover) so the only things carrying
+ * hue are the ones carrying meaning; an ink primary that reads as near-black rather
+ * than as a brand colour, which is what lets a pill button and the active nav pill be
+ * black without shouting; soft 1px hairlines with shadows quiet enough that the border
+ * does the separating.
+ *
+ * Tokens are bare HSL channels, so any rule can take an alpha of one —
+ * hsl(var(--primary) / 0.06) — without inventing a second variable. The nine names the
+ * screens already consume (--approve, --challenge, --block, --system, --neutral,
+ * --text, --faint, --surface, --border) are resolved colours layered on top of that
+ * ladder, so every existing screen inherits both themes without one className changing.
+ *
+ * Four semantic colours, still. Voice authenticity is --neutral always. 8-px spacing.
+ * 150 ms transitions. No CDN fonts (venue wifi), no gradients.
  */
 
 :root {
-  --approve: #059669;
-  --challenge: #f59e0b;
-  --block: #e11d48;
-  --system: #7c3aed;
-  --neutral: #94a3b8;
-  --text: #0f172a;
-  --faint: #64748b;
-  --surface: #f8fafc;
-  --border: #e2e8f0;
+  color-scheme: light;
+
+  /* Surface ladder — achromatic paper. Card sits above the page, subtle recedes
+     inside a card (table heads, footers, meta strips), popover floats above all. */
+  --background: 0 0% 96%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  --subtle: 0 0% 97%;
+  --subtle-foreground: 0 0% 32%;
+  --popover: 0 0% 100%;
+
+  /* Ink, not a brand hue: 17.9:1 on white, so white-on-ink needs no second thought
+     and the focus ring clears 3:1 with room to spare. */
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 20%;
+  --muted: 0 0% 96%;
+  /* 42%, not 45%: this text also lands on --accent as a hover fill, where 45%
+     measures 4.47:1 — just under the floor. At 42% the worst surface is 4.67:1. */
+  --muted-foreground: 0 0% 42%;
+  --accent: 0 0% 94%;
+  --accent-foreground: 0 0% 14%;
+
+  /* The four semantics, at the levels that clear 4.5:1 as text on their own 8–12%
+     tint — the hardest surface each one has to sit on (chip, banner, tinted row).
+     Amber at the usual 600-level 38% measured 4.09:1 on a tinted banner; 31% is the
+     one value that clears both the tint and white-on-solid. */
+  --success: 154 56% 29%;
+  --warning: 30 88% 31%;
+  --destructive: 353 65% 43%;
+  --info: 262 60% 45%;
+  --neutral-hue: 215 20% 65%;
+  /* The one blue in the product: a link, never a state. */
+  --link: 217 79% 45%;
+
+  /* Hairlines instead of hard rules. With shadows this quiet the border is what
+     separates a card from the page, so it is tuned by eye rather than by ratio. */
+  --c-border: 0 0% 91%;
+  --border-strong: 0 0% 84%;
+  --input: 0 0% 80%;
+  --ring: 0 0% 9%;
+  --grid: 0 0% 92%;
+
+  /* Elevation — soft and diffuse rather than tight and dark, so a card reads as
+     lifted paper. Cards get 1; only the drawer gets 3. */
+  --shadow-1: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
+  --shadow-2: 0 2px 8px -2px hsl(0 0% 0% / 0.06), 0 1px 2px 0 hsl(0 0% 0% / 0.04);
+  --shadow-3: 0 16px 40px -12px hsl(0 0% 0% / 0.16), 0 4px 12px -6px hsl(0 0% 0% / 0.08);
+
+  /* Radius ladder — one step per element size, so a 14px card corner does not also
+     turn a 20px-tall chip into a lozenge. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* ---- the nine names the screens already consume, resolved from the ladder ---- */
+  --approve: hsl(var(--success));
+  --challenge: hsl(var(--warning));
+  --block: hsl(var(--destructive));
+  --system: hsl(var(--info));
+  --neutral: hsl(var(--neutral-hue));
+  --text: hsl(var(--foreground));
+  --faint: hsl(var(--muted-foreground));
+  --surface: hsl(var(--subtle));
+  --border: hsl(var(--c-border));
+  --panel: hsl(var(--card));
+  --panel2: hsl(var(--subtle));
+  --tint-approve: color-mix(in srgb, var(--approve) 10%, hsl(var(--card)));
+  --tint-challenge: color-mix(in srgb, var(--challenge) 10%, hsl(var(--card)));
+  --tint-block: color-mix(in srgb, var(--block) 10%, hsl(var(--card)));
+  --tint-system: color-mix(in srgb, var(--system) 10%, hsl(var(--card)));
 }
+
+/* The same ladder, inverted: the toggle changes brightness, not vocabulary. The
+   page is nearly black, the card lifts by luminance rather than by shadow, and the
+   semantics move to their 400-level so they stay legible on ink. */
+.dark {
+  color-scheme: dark;
+
+  --background: 0 0% 7%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 95%;
+  --subtle: 0 0% 13%;
+  --subtle-foreground: 0 0% 68%;
+  --popover: 0 0% 15%;
+
+  /* Inverted ink: the pill that is black on white becomes near-white with dark
+     text, which is the only way "primary = ink" survives a theme flip. */
+  --primary: 0 0% 95%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 17%;
+  --secondary-foreground: 0 0% 92%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 0 0% 19%;
+  --accent-foreground: 0 0% 96%;
+
+  --success: 154 58% 48%;
+  --warning: 38 92% 57%;
+  --destructive: 352 86% 67%;
+  --info: 262 84% 74%;
+  --neutral-hue: 215 16% 62%;
+  --link: 213 92% 70%;
+
+  --c-border: 0 0% 17%;
+  --border-strong: 0 0% 28%;
+  --input: 0 0% 26%;
+  --ring: 0 0% 92%;
+  --grid: 0 0% 18%;
+
+  --shadow-1: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
+  --shadow-2: 0 2px 8px -2px hsl(0 0% 0% / 0.6), 0 1px 2px 0 hsl(0 0% 0% / 0.5);
+  --shadow-3: 0 16px 40px -12px hsl(0 0% 0% / 0.7), 0 4px 12px -6px hsl(0 0% 0% / 0.5);
+}
+
+/* ------------------------------------------------------------------------ base */
 
 * { box-sizing: border-box; }
 
@@ -25,25 +150,39 @@ html, body, #root {
 body {
   font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
   font-size: 14px;
-  color: var(--text);
-  background: #ffffff;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-code, .mono {
+code, pre, .mono, .mono-xs {
   font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
 }
 
-h1 { font-size: 20px; font-weight: 650; margin: 0; }
-h2 { font-size: 16px; font-weight: 620; margin: 0 0 8px; }
+/* Columns of numbers line up vertically wherever they are read as money or a rate. */
+table, .nums, .figure, .mono, .mono-xs {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+::selection { background: hsl(var(--primary) / 0.22); }
+::placeholder { color: hsl(var(--muted-foreground)); }
+
+/* ---------------------------------------------------------------- typography */
+
+h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; margin: 0; }
+h2 { font-size: 16px; font-weight: 620; letter-spacing: -0.005em; margin: 0 0 8px; }
 h3 { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--faint); }
 
 .xs { font-size: 11px; letter-spacing: 0.02em; }
 .sm { font-size: 13px; }
-.lg { font-size: 17px; }
-.xl { font-size: 34px; font-weight: 700; }
-.nums { font-variant-numeric: tabular-nums; }
+.lg { font-size: 17px; font-weight: 600; letter-spacing: -0.005em; }
+.xl { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
+.figure { letter-spacing: -0.01em; }
 
+/* Two text tiers only: --text for what is being read, --faint for the labels and
+   metadata in support of it. Below that, de-emphasis is size, weight and position. */
 .smallcaps {
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -52,13 +191,14 @@ h3 { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--faint); }
   font-weight: 600;
 }
 
-/* ---- layout primitives: 8-px scale, one-pixel borders, rounded-lg ---- */
+/* ------------------------------------------------- layout primitives (8-px) --- */
 
 .card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--c-border));
+  border-radius: var(--r-lg);
   padding: 16px;
+  box-shadow: var(--shadow-1);
 }
 
 .row { display: flex; gap: 8px; align-items: center; }
@@ -66,127 +206,622 @@ h3 { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--faint); }
 .spread { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .grow { flex: 1; min-width: 0; }
 
-/* ---- state chips: colour never the only carrier (icon + text always) ---- */
+/* Recessed strip inside a card: table heads, panel footers, meta bars. */
+.inset-strip { background: hsl(var(--subtle)); }
+/* Hairline separator, used instead of nesting bordered boxes. */
+.hairline { background: hsl(var(--c-border)); }
+
+/* ------------------------------------------------------------------- chips ---
+   Colour is never the only carrier: every chip in the product ships an icon or a
+   word alongside it. Tints are mixed from the semantic colour itself, so one rule
+   holds in both themes and a retuned token moves its chip with it. */
 
 .chip {
-  display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600;
-  border: 1px solid var(--border); background: var(--surface); white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--r-sm);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid hsl(var(--c-border));
+  background: hsl(var(--subtle));
+  color: hsl(var(--subtle-foreground));
 }
-.chip.approve  { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
-.chip.challenge { background: #fffbeb; border-color: #fde68a; color: #92400e; }
-.chip.block    { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
-.chip.system   { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
-.chip.neutral  { color: var(--faint); }
+.chip.approve   { --tone: var(--approve); }
+.chip.challenge { --tone: var(--challenge); }
+.chip.block     { --tone: var(--block); }
+.chip.system    { --tone: var(--system); }
+.chip.approve, .chip.challenge, .chip.block, .chip.system {
+  background: color-mix(in srgb, var(--tone) 10%, hsl(var(--card)));
+  border-color: color-mix(in srgb, var(--tone) 34%, transparent);
+  color: var(--tone);
+}
+.chip.neutral { color: var(--faint); }
 
-/* ---- bars ---- */
+/* -------------------------------------------------------------------- bars --- */
 
-.meter { height: 10px; border-radius: 5px; background: #e2e8f0; overflow: hidden; }
+.meter {
+  height: 10px;
+  border-radius: 5px;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--c-border));
+  overflow: hidden;
+}
 .meter > span { display: block; height: 100%; transition: width 150ms ease-out; }
 
-/* the two-number card: identical geometry for both bars, ALWAYS (§8.2) */
-.twin-meter { height: 14px; border-radius: 7px; background: #e2e8f0; overflow: hidden; }
+/* The two-number card: identical geometry for both bars, ALWAYS (§8.2). */
+.twin-meter {
+  height: 14px;
+  border-radius: 7px;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--c-border));
+  overflow: hidden;
+}
 .twin-meter > span { display: block; height: 100%; transition: width 150ms ease-out; }
 
-/* ---- focus: visible, never outline:none ---- */
+/* ------------------------------------------------------------------- focus ---
+   One indicator for the whole app. --ring is ink — near-black in light, near-white
+   in dark — so at 0.75 the composite clears 3:1 against every surface a ring can
+   land on, in both themes. */
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid hsl(var(--ring) / 0.75);
+  outline-offset: 2px;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid hsl(var(--ring) / 0.75);
   outline-offset: 2px;
 }
 
+/* ----------------------------------------------------------------- controls --- */
+
 button {
-  font: inherit; cursor: pointer;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: #fff; color: var(--text); padding: 6px 12px;
-  transition: background 150ms ease-out, border-color 150ms ease-out;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid hsl(var(--c-border));
+  border-radius: var(--r-sm);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  padding: 6px 12px;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
 }
-button:hover:not(:disabled) { background: var(--surface); }
+button:hover:not(:disabled) { background: hsl(var(--accent)); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
-button.primary { background: var(--text); color: #fff; border-color: var(--text); }
-button.primary:hover:not(:disabled) { background: #334155; }
-button.danger { background: var(--block); color: #fff; border-color: var(--block); }
+button.primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+  border-radius: var(--r-pill);
+  padding: 6px 14px;
+  font-weight: 600;
+}
+button.primary:hover:not(:disabled) { background: hsl(var(--primary) / 0.88); }
+button.danger {
+  background: var(--block);
+  color: hsl(var(--card));
+  border-color: var(--block);
+  font-weight: 600;
+}
+button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--block) 86%, black); }
+button.ghost { background: transparent; border-color: transparent; color: var(--faint); }
+button.ghost:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 
 input, select, textarea {
-  font: inherit; color: var(--text);
-  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
-  background: #fff;
+  font: inherit;
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--r-sm);
+  padding: 6px 8px;
+  background: hsl(var(--card));
 }
 
-/* ---- nav ---- */
+/* --------------------------------------------------------------------- nav ---
+   The horizontal strip is retained for the screens that still render it; the shell
+   below turns the same vocabulary into a rail. Active is an ink pill either way. */
 
 .nav {
-  display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
-  padding: 8px 16px; border-bottom: 1px solid var(--border); background: #fff;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  border-bottom: 1px solid hsl(var(--c-border));
+  background: hsl(var(--card));
 }
 .nav a {
-  text-decoration: none; color: var(--faint); font-weight: 600; font-size: 13px;
-  padding: 6px 10px; border-radius: 6px;
+  text-decoration: none;
+  color: var(--faint);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: hsl(var(--secondary));
+  transition: background 150ms ease-out, color 150ms ease-out;
 }
-.nav a.active, .nav a:hover { color: var(--text); background: var(--surface); }
+.nav a:hover { color: hsl(var(--foreground)); background: hsl(var(--accent)); }
+.nav a.active {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+}
 
-/* ---- the chain banner: green steady, red flash on detection (one of two animations) ---- */
+/* ------------------------------------------------------------------- shell ---
+   A collapsible rail that is both navigation and the workflow phase monitor, and a
+   fixed-height topbar. The rail animates its width only — nothing reflows, and the
+   labels cross-fade a little faster than the width so text never smears. */
+
+.shell { display: flex; height: 100%; min-height: 0; }
+
+/* The three fixed regions of the window: banner + shell + chain footer, with only the
+   routed region scrolling. A screen can therefore claim the full height it is given
+   (`.screen.tall`) without the page growing a second scrollbar. */
+.app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.shell-main { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
+.routed { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; }
+
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  width: 244px;
+  flex-shrink: 0;
+  border-right: 1px solid hsl(var(--c-border));
+  background: hsl(var(--card));
+  transition: width 200ms cubic-bezier(0.2, 0, 0, 1);
+  overflow: hidden;
+}
+.rail[data-collapsed="true"] { width: 60px; }
+.rail-label { transition: opacity 110ms ease-out; }
+.rail[data-collapsed="true"] .rail-label { opacity: 0; pointer-events: none; }
+
+.rail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid hsl(var(--c-border));
+}
+.rail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 8px;
+}
+.rail-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px;
+  border-top: 1px solid hsl(var(--c-border));
+}
+
+/* The brand mark: an ink tile, the one strong shape in the chrome. */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.railnav { display: flex; flex-direction: column; gap: 2px; }
+.railnav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--faint);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 150ms ease-out, color 150ms ease-out;
+}
+.railnav a:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.railnav a.active {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.railnav .dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+.railnav a.active .dot { opacity: 1; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-bottom: 1px solid hsl(var(--c-border));
+  background: hsl(var(--card));
+}
+
+/* ------------------------------------------------------ the four run states ---
+   PENDING / RUNNING / COMPLETED / FAILED, one vocabulary for every surface that
+   shows them: the phase monitor rows, the part cards and the task rows. */
+
+[data-status] { --state: var(--neutral); }
+[data-status="PENDING"]   { --state: hsl(var(--muted-foreground)); }
+[data-status="RUNNING"]   { --state: hsl(var(--primary)); }
+[data-status="COMPLETED"] { --state: var(--approve); }
+[data-status="FAILED"]    { --state: var(--block); }
+[data-status="CANCELLED"] { --state: hsl(var(--muted-foreground)); }
+
+.state-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--state);
+}
+.state-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--state) 55%, transparent);
+  color: var(--state);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Motion budget: 150–220 ms, ease-out, opacity and 2–4 px of travel. Nothing
+   bounces, nothing parallaxes, nothing moves that a reader did not ask for. */
+.pulse { animation: pulse 1200ms ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.spin { animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fade-in { animation: fade 0.22s cubic-bezier(0.2, 0, 0, 1); }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Motion is opt-out at the root: every animation and transition collapses to a
+   static end state, so nothing above needs its own guard. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* -------------------------------------------------------- pipeline visualizer --- */
+
+.parts { display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 1100px) {
+  .parts { flex-direction: row; align-items: stretch; }
+}
+
+.part {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid hsl(var(--c-border));
+  border-radius: var(--r-lg);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-1);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.part[data-status="RUNNING"] { border-color: color-mix(in srgb, var(--state) 40%, transparent); }
+.part[data-status="FAILED"] { border-color: color-mix(in srgb, var(--state) 42%, transparent); }
+.part[data-active="true"] { box-shadow: var(--shadow-1), 0 0 0 1px color-mix(in srgb, hsl(var(--primary)) 32%, transparent); }
+
+.part-head { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 8px; }
+.part-tasks {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-top: 1px solid hsl(var(--c-border));
+  background: hsl(var(--subtle));
+  list-style: none;
+  margin: 0;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+.task {
+  border-radius: var(--r-sm);
+  padding: 5px 8px;
+  transition: background 150ms ease-out;
+}
+.task[data-status="RUNNING"] { background: hsl(var(--primary) / 0.06); }
+.task[data-status="FAILED"] { background: color-mix(in srgb, var(--block) 6%, transparent); }
+.task-title { font-size: 13px; }
+.task[data-status="PENDING"] .task-title { color: var(--faint); }
+.task[data-status="RUNNING"] .task-title { font-weight: 600; }
+.task-detail {
+  margin: 2px 0 0;
+  padding-left: 22px;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  color: var(--faint);
+}
+
+.part-fail {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid color-mix(in srgb, var(--block) 30%, transparent);
+  background: color-mix(in srgb, var(--block) 6%, transparent);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.part-arrow {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--faint);
+}
+@media (min-width: 1100px) { .part-arrow { display: flex; } }
+
+/* ----------------------------------------------------------- phase monitor --- */
+
+.phase-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  padding: 6px 8px;
+}
+.phase-row:hover:not(:disabled) { background: hsl(var(--accent) / 0.7); }
+.phase-row[aria-pressed="true"] {
+  border-color: hsl(var(--primary) / 0.45);
+  background: hsl(var(--primary) / 0.06);
+}
+
+/* ------------------------------------------------------------ live console --- */
+
+.console {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid hsl(var(--c-border));
+  border-radius: var(--r-lg);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.console-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  border-bottom: 1px solid hsl(var(--c-border));
+  background: hsl(var(--subtle));
+}
+.console-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border-strong)) transparent;
+}
+.console-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.console-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-strong));
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.console-scroll::-webkit-scrollbar-track { background: transparent; }
+
+.console-lines { margin: 0; padding: 4px 0; list-style: none; }
+.log {
+  display: flex;
+  gap: 8px;
+  padding: 2px 10px;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.65;
+}
+.log-time { flex-shrink: 0; color: hsl(var(--muted-foreground) / 0.75); }
+.log-part { width: 20px; flex-shrink: 0; color: hsl(var(--muted-foreground) / 0.8); }
+.log[data-scoped="true"] .log-part { color: hsl(var(--primary)); }
+.log-body { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-word; }
+.log-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--faint);
+}
+/* Row wash is kept far lighter than the text tint, so a long run of warnings does
+   not turn the panel into a block of colour. */
+.log[data-level="warn"] { background: color-mix(in srgb, var(--challenge) 5%, transparent); }
+.log[data-level="error"] { background: color-mix(in srgb, var(--block) 6%, transparent); }
+.log[data-level="success"] { background: color-mix(in srgb, var(--approve) 5%, transparent); }
+.log[data-level="info"] .log-msg { color: hsl(var(--foreground) / 0.88); }
+.log[data-level="detail"] .log-msg { color: var(--faint); }
+.log[data-level="warn"] .log-msg { color: var(--challenge); }
+.log[data-level="error"] .log-msg { color: var(--block); }
+.log[data-level="success"] .log-msg { color: var(--approve); }
+
+/* An attempt divider is the one line the run did not emit, so it reads as a rule
+   rather than as output. */
+.log-divider { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.log-divider .bar {
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--challenge) 32%, transparent);
+}
+
+/* A pressed filter chip, shared by the console header and the part cards. */
+.filter-chip {
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--r-sm);
+  padding: 1px 7px;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--faint);
+}
+.filter-chip:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.filter-chip[aria-pressed="true"] {
+  border-color: hsl(var(--primary) / 0.45);
+  background: hsl(var(--primary) / 0.08);
+  color: hsl(var(--primary));
+}
+
+/* --------------------------------------------------------- the chain banner ---
+   Green steady, red flash on detection — one of the two animations in the product. */
 
 .chain-banner {
-  padding: 10px 16px; font-size: 13px; font-weight: 600;
-  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
-.chain-banner.ok { background: #ecfdf5; color: #065f46; border-bottom: 1px solid #a7f3d0; }
-.chain-banner.broken { background: #fff1f2; color: #9f1239; border-bottom: 1px solid #fecdd3; }
-@keyframes flash-red { 0% { background: #fecdd3; } 100% { background: #fff1f2; } }
+.chain-banner.ok {
+  background: color-mix(in srgb, var(--approve) 10%, hsl(var(--card)));
+  color: var(--approve);
+  border-bottom: 1px solid color-mix(in srgb, var(--approve) 34%, transparent);
+}
+.chain-banner.broken {
+  background: color-mix(in srgb, var(--block) 10%, hsl(var(--card)));
+  color: var(--block);
+  border-bottom: 1px solid color-mix(in srgb, var(--block) 34%, transparent);
+}
+@keyframes flash-red {
+  0% { background: color-mix(in srgb, var(--block) 30%, hsl(var(--card))); }
+  100% { background: color-mix(in srgb, var(--block) 10%, hsl(var(--card))); }
+}
 .chain-banner.flash { animation: flash-red 600ms ease-out 2; }
 
-/* ---- the evidence drawer: the single shadow in the product ---- */
+/* ------------------------------------------- the evidence drawer: one shadow --- */
 
 .drawer-veil {
-  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.32);
-  display: flex; justify-content: flex-end; z-index: 40;
+  position: fixed;
+  inset: 0;
+  background: hsl(0 0% 0% / 0.42);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 40;
 }
 .drawer {
-  width: min(560px, 92vw); height: 100%; overflow: auto;
-  background: #fff; padding: 20px;
-  box-shadow: -8px 0 24px rgba(15, 23, 42, 0.12);
+  width: min(560px, 92vw);
+  height: 100%;
+  overflow: auto;
+  background: hsl(var(--popover));
+  color: hsl(var(--foreground));
+  padding: 20px;
+  box-shadow: var(--shadow-3);
 }
-.drawer pre {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 12px; overflow: auto; font-size: 12px; line-height: 1.5; margin: 0;
+.drawer pre,
+pre.code {
+  background: hsl(var(--subtle));
+  border: 1px solid hsl(var(--c-border));
+  border-radius: var(--r-md);
+  padding: 12px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
 }
 
-/* ---- tables ---- */
+/* ------------------------------------------------------------------ tables --- */
 
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th { text-align: left; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
-     color: var(--faint); padding: 6px 8px; border-bottom: 1px solid var(--border); }
-td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 6px 8px;
+  border-bottom: 1px solid hsl(var(--c-border));
+}
+td { padding: 8px; border-bottom: 1px solid hsl(var(--c-border)); vertical-align: top; }
 tr.clickable { cursor: pointer; }
-tr.clickable:hover { background: var(--surface); }
-tr.broken { background: #fff1f2; }
-tr.inherit-broken { background: #fffbeb; }
+tr.clickable:hover { background: hsl(var(--accent) / 0.6); }
+tr.broken { background: color-mix(in srgb, var(--block) 8%, transparent); }
+tr.inherit-broken { background: color-mix(in srgb, var(--challenge) 8%, transparent); }
 tr.tampered .mono { text-decoration: line-through; }
 
 .right { text-align: right; }
-.mono-xs { font-family: "JetBrains Mono", Consolas, monospace; font-size: 12px; }
+.mono-xs { font-size: 12px; }
 
-/* ---- screen container ---- */
+/* ------------------------------------------------------- screen container --- */
 
-.screen { padding: 16px; display: flex; flex-direction: column; gap: 16px; max-width: 1240px; margin: 0 auto; }
+.screen {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+/* The pipeline screen owns the full height of the routed region instead of
+   scrolling as a document: its console pins to the bottom of its own box. */
+.screen.tall { max-width: 1440px; height: 100%; min-height: 0; }
 
 @media (max-width: 720px) { .screen { padding: 8px; } }
 
-/* ---- footer: the published head hash, monospace, always visible (§4.4) ---- */
+/* ------------------------------------------------------------------ footer ---
+   The published head hash, monospace, always visible (§4.4). */
 
 .chain-footer {
-  display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
-  padding: 10px 16px; border-top: 1px solid var(--border);
-  font-size: 12px; color: var(--faint); background: #fff;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid hsl(var(--c-border));
+  font-size: 12px;
+  color: var(--faint);
+  background: hsl(var(--card));
 }
-.chain-footer .hash { color: var(--text); }
+.chain-footer .hash { color: hsl(var(--foreground)); }
 .chain-footer.broken .hash { color: var(--block); font-weight: 700; }
 
-/* ---- a11y helpers ---- */
+/* ------------------------------------------------------------ a11y helpers --- */
 
 .sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }

@@ -1,21 +1,25 @@
 /**
  * Design tokens — the rules, not the taste. §23
  *
- * Near-neutral slate surface; exactly four semantic colours; voice authenticity is
- * slate-400 always (the one deliberate colour decision in the product); 8-px spacing;
+ * Near-neutral achromatic surface; exactly four semantic colours; voice authenticity is
+ * `--neutral` always (the one deliberate colour decision in the product); 8-px spacing;
  * one shadow; 150 ms transitions. Fixed at G1 and never argued about again.
+ *
+ * The values below are *references*, not literals: `tokens.css` resolves each name from a
+ * light/dark HSL ladder, so a component that reads `COLORS.approve` is theme-correct in
+ * both modes. A hex here would be a light-mode-only colour smuggled into TypeScript.
  */
 
 export const COLORS = {
-  approve: "#059669",     // emerald-600
-  challenge: "#f59e0b",  // amber-500
-  block: "#e11d48",      // rose-600
-  system: "#7c3aed",     // violet-600 — breaker, degraded mode, canary
-  neutral: "#94a3b8",    // slate-400 — voice authenticity, ALWAYS
-  text: "#0f172a",      // slate-900
-  faint: "#64748b",      // slate-500
-  surface: "#f8fafc",    // slate-50
-  border: "#e2e8f0",     // slate-200
+  approve: "var(--approve)",      // success — emerald family
+  challenge: "var(--challenge)",  // warning — amber family
+  block: "var(--block)",          // destructive — rose family
+  system: "var(--system)",        // info — violet: breaker, degraded mode, canary
+  neutral: "var(--neutral)",      // voice authenticity, ALWAYS
+  text: "var(--text)",            // primary text tier
+  faint: "var(--faint)",          // the only secondary text tier
+  surface: "var(--surface)",      // one step off the card
+  border: "var(--border)",        // hairline
 } as const;
 
 export type DecisionTone = "approve" | "challenge" | "block" | "system" | "neutral";

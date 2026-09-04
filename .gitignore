@@ -19,6 +19,7 @@ var/bench_latest.json
 
 # Secrets — never commit
 .env
+.env.local
 dev/keys/
 
 # OS

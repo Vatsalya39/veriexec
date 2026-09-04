@@ -91,7 +91,7 @@ function Report({ report, sweep }: {
                   const n = matrix[e]?.[a] ?? 0;
                   const diag = e === a;
                   return <td key={a} className={"right nums mono " + (diag ? "" : n ? "broken" : "")}
-                             style={diag ? { background: "#f0fdf4" } : n ? { background: "#fff1f2", fontWeight: 700 } : {}}>
+                             style={diag ? { background: "var(--tint-approve)" } : n ? { background: "var(--tint-block)", fontWeight: 700 } : {}}>
                     {n}</td>;
                 })}
               </tr>
@@ -200,17 +200,17 @@ function SweepChart({ rows }: { rows: { threshold: number; detection: number | n
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: W }} role="img"
          aria-label="Threshold sweep: detection rate falls and false positives fall as the block threshold rises">
-      <rect x={PAD} y={14} width={W - PAD - 12} height={H - PAD - 14} fill="#f8fafc" stroke="#e2e8f0" />
+      <rect x={PAD} y={14} width={W - PAD - 12} height={H - PAD - 14} fill="hsl(var(--subtle))" stroke="hsl(var(--c-border))" />
       <path d={line("detection")} fill="none" stroke="var(--system)" strokeWidth="2" />
       <path d={line("fp")} fill="none" stroke="var(--challenge)" strokeWidth="2" strokeDasharray="5 3" />
       {/* the chosen operating point, annotated (Â§17.3) */}
       <line x1={x(70)} x2={x(70)} y1={14} y2={H - PAD} stroke="var(--block)" strokeWidth="1.5" />
       <text x={x(70) + 4} y={30} fontSize="10" fill="var(--block)">chosen: 70</text>
       {[50, 60, 70, 80, 90].map((t) => (
-        <text key={t} x={x(t)} y={H - PAD + 14} fontSize="10" fill="#64748b" textAnchor="middle">{t}</text>
+        <text key={t} x={x(t)} y={H - PAD + 14} fontSize="10" fill="var(--faint)" textAnchor="middle">{t}</text>
       ))}
       {[0, 0.5, 1].map((v) => (
-        <text key={v} x={PAD - 6} y={y(v) + 3} fontSize="10" fill="#64748b" textAnchor="end">{v}</text>
+        <text key={v} x={PAD - 6} y={y(v) + 3} fontSize="10" fill="var(--faint)" textAnchor="end">{v}</text>
       ))}
       <text x={W - 12} y={30} fontSize="10" fill="var(--system)" textAnchor="end">â€” detection rate</text>
       <text x={W - 12} y={44} fontSize="10" fill="var(--challenge)" textAnchor="end">- - false positives</text>
