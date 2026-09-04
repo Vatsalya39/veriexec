@@ -83,8 +83,10 @@ export function BreakerBanner({ state, openedAt, trialAt }: { state: string; ope
   return (
     <div className="chain-banner" role="alert"
          style={state === "OPEN"
-           ? { background: "#f5f3ff", color: "#5b21b6", borderBottom: "1px solid #ddd6fe" }
-           : { background: "#fffbeb", color: "#92400e", borderBottom: "1px solid #fde68a" }}>
+           ? { background: "var(--tint-system)", color: "var(--system)",
+               borderBottom: "1px solid color-mix(in srgb, var(--system) 34%, transparent)" }
+           : { background: "var(--tint-challenge)", color: "var(--challenge)",
+               borderBottom: "1px solid color-mix(in srgb, var(--challenge) 34%, transparent)" }}>
       <span aria-hidden>{state === "OPEN" ? "⏸" : "⚠"}</span>
       {state === "OPEN" ? (
         <>Organization-wide hold — 4 high-risk authorizations in 10 minutes. All executive transfers paused

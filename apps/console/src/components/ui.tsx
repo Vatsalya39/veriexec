@@ -96,7 +96,7 @@ export function ViewToggle({ view, onChange }: { view: "graph" | "table"; onChan
     <div className="row" role="tablist" aria-label="View mode">
       {(["graph", "table"] as const).map((v) => (
         <button key={v} role="tab" aria-selected={view === v}
-                style={view === v ? { background: "var(--text)", color: "#fff", borderColor: "var(--text)" } : {}}
+                style={view === v ? { background: "var(--text)", color: "hsl(var(--primary-foreground))", borderColor: "var(--text)" } : {}}
                 onClick={() => onChange(v)}>{v === "graph" ? "Graph" : "Table"}</button>
       ))}
     </div>
@@ -104,5 +104,5 @@ export function ViewToggle({ view, onChange }: { view: "graph" | "table"; onChan
 }
 
 export function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
-  return <a href={href} target="_blank" rel="noreferrer" style={{ color: "#2563eb" }}>{children}</a>;
+  return <a href={href} target="_blank" rel="noreferrer" style={{ color: "hsl(var(--link))" }}>{children}</a>;
 }

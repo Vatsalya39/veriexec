@@ -180,7 +180,7 @@ function TamperBox({ onTampered }: { onTampered: () => void }) {
   };
 
   return (
-    <div className="card" data-testid="tamper-box" style={{ borderColor: "#fecdd3" }}>
+    <div className="card" data-testid="tamper-box" style={{ borderColor: "color-mix(in srgb, var(--block) 34%, transparent)" }}>
       <div className="spread">
         <div>
           <div className="smallcaps" style={{ color: "var(--block)" }}>The tamper demo · 40 seconds that beat any slide</div>

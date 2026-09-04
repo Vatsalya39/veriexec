@@ -91,7 +91,7 @@ export function KillSwitchScreen({ envelope }: { envelope: ScenarioEnvelope | nu
         {baseline && <div className="xs mono" style={{ marginTop: 6, color: "var(--faint)" }}>A: {baseline.assessment.assessment_id} · risk {baseline.assessment.risk_score} · {baseline.assessment.decision}</div>}
         {flipped && <div className="xs mono" style={{ color: "var(--faint)" }}>B: {flipped.assessment.assessment_id} · risk {flipped.assessment.risk_score} · {flipped.assessment.decision}</div>}
         {diff && (
-          <div className="card" style={{ marginTop: 10, background: diff.length === 1 && diff[0] === "top_reasons" ? "#ecfdf5" : "var(--surface)" }}
+          <div className="card" style={{ marginTop: 10, background: diff.length === 1 && diff[0] === "top_reasons" ? "var(--tint-approve)" : "var(--surface)" }}
                data-testid="compare-result" aria-live="polite">
             {diff.length === 1 && diff[0] === "top_reasons" ? (
               <>

@@ -94,7 +94,16 @@ export function TimelineScreen({ envelope }: { envelope: ScenarioEnvelope | null
   );
 }
 
+/**
+ * The six pipeline stages, coloured from the token ladder so both themes track. Capture is
+ * neutral, investigation is the system hue, adjudication is challenge → approve: the same
+ * three-part story the pipeline screen tells.
+ */
 const STAGE_COLORS: Record<string, string> = {
-  ingest: "#94a3b8", extract: "#7c3aed", detect: "#a78bfa",
-  fuse: "#64748b", decide: "#f59e0b", record: "#059669",
+  ingest: "var(--neutral)",
+  extract: "var(--system)",
+  detect: "color-mix(in srgb, var(--system) 62%, hsl(var(--card)))",
+  fuse: "var(--faint)",
+  decide: "var(--challenge)",
+  record: "var(--approve)",
 };

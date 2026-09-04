@@ -86,9 +86,9 @@ export function EvidenceGraphPanel({ envelope }: { envelope: ScenarioEnvelope })
               return (
                 <g key={i}>
                   <path d={`M${x1},${y1} C${x1 + 60},${y1} ${x2 - 60},${y2} ${x2},${y2}`}
-                        fill="none" stroke="#cbd5e1" strokeWidth="1.5" />
+                        fill="none" stroke="hsl(var(--border-strong))" strokeWidth="1.5" />
                   {e.label && (
-                    <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 4} fontSize="10" fill="#64748b" textAnchor="middle">
+                    <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 4} fontSize="10" fill="var(--faint)" textAnchor="middle">
                       {e.label}
                     </text>
                   )}
@@ -106,10 +106,10 @@ export function EvidenceGraphPanel({ envelope }: { envelope: ScenarioEnvelope })
                    onClick={() => setDrawer({ id: n.id })}
                    onKeyDown={(e) => { if (e.key === "Enter") setDrawer({ id: n.id }); }}>
                   <rect width="168" height="52" rx="8"
-                        fill={isDecision && n.state === "block" ? "#fff1f2" : "#fff"}
+                        fill={isDecision && n.state === "block" ? "var(--tint-block)" : "hsl(var(--card))"}
                         stroke={color} strokeWidth={isDecision ? 2 : 1} />
-                  <text x="12" y="21" fontSize="12" fontWeight="600" fill="#0f172a">{n.label}</text>
-                  <text x="12" y="38" fontSize="10" fill="#64748b">{n.detail}</text>
+                  <text x="12" y="21" fontSize="12" fontWeight="600" fill="var(--text)">{n.label}</text>
+                  <text x="12" y="38" fontSize="10" fill="var(--faint)">{n.detail}</text>
                 </g>
               );
             })}

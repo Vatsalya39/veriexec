@@ -30,7 +30,7 @@ export function ScenarioBar({
         </label>
         {heroes.map((s) => (
           <button key={s.id} onClick={() => onPick(s.id)}
-                  style={s.id === activeId ? { background: "var(--text)", color: "#fff", borderColor: "var(--text)" } : {}}
+                  style={s.id === activeId ? { background: "var(--text)", color: "hsl(var(--primary-foreground))", borderColor: "var(--text)" } : {}}
                   title={s.title}>{s.id} ★</button>
         ))}
         <span className="grow" />
@@ -45,7 +45,7 @@ export function ScenarioBar({
         <div className="xs" style={{ color: "var(--faint)" }}>
           {active.id}: {active.title} · {active.amount_display} · expected {active.decision}
           {" · "}
-          <a href={`/golden/${active.id}.json`} target="_blank" rel="noreferrer" style={{ color: "#2563eb" }}>
+          <a href={`/golden/${active.id}.json`} target="_blank" rel="noreferrer" style={{ color: "hsl(var(--link))" }}>
             raw fixture JSON
           </a>
         </div>
@@ -56,7 +56,7 @@ export function ScenarioBar({
           <div className="row" style={{ flexWrap: "wrap", marginTop: 6 }}>
             {rest.map((s) => (
               <button key={s.id} className="xs" onClick={() => onPick(s.id)}
-                      style={s.id === activeId ? { background: "var(--text)", color: "#fff" } : {}}>
+                      style={s.id === activeId ? { background: "var(--text)", color: "hsl(var(--primary-foreground))" } : {}}>
                 {s.id} {s.class === "ATTACK" ? "· attack" : "· legit"}
               </button>
             ))}
