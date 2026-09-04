@@ -77,6 +77,18 @@ class OpenAICompatibleClient:
         raise LLMUnavailableError("LLM_UNAVAILABLE")  # pragma: no cover
 
 
+#: qwen3 is a thinking model: without this flag the API spends its timeout budget writing
+#: a hidden reasoning block before the JSON. `think: false` is the Ollama-native switch;
+#: `_strip_think` below is the belt-and-braces for servers that still inline it.
+_THINK_END = "</think>"
+
+
+def _strip_think(text: str) -> str:
+    if _THINK_END in text:
+        return text.split(_THINK_END, 1)[1]
+    return text
+
+
 class OllamaClient:
     """Local Ollama client using the native /api/chat endpoint.
 
@@ -90,7 +102,7 @@ class OllamaClient:
         self.model = model or CONFIG.llm_model or "qwen3:14b"
 
     def complete_json(self, system: str, user: str, *, schema: dict,
-                      timeout_s: float = 20.0) -> dict:
+                      timeout_s: float = 25.0) -> dict:
         import urllib.request
         import urllib.error
 
@@ -102,6 +114,7 @@ class OllamaClient:
             ],
             "stream": False,
             "format": "json",
+            "think": False,
             "options": {"temperature": 0.0},
         }
         data = json.dumps(payload).encode("utf-8")
@@ -114,7 +127,7 @@ class OllamaClient:
         try:
             with urllib.request.urlopen(req, timeout=timeout_s) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
-                content = result.get("message", {}).get("content", "")
+                content = _strip_think(str(result.get("message", {}).get("content", "")))
                 parsed = parse_llm_json(content)
                 if parsed is not None:
                     return parsed
@@ -124,12 +137,21 @@ class OllamaClient:
 
 
 def get_client() -> LLMClient:
+    """The one construction site for the extraction client.
+
+    `offline` mode is the default and returns the NullClient — the demo path. Live Ollama
+    enrichment requires both the mode switch (`INTENTLOCK_MODE=live|cached`) and the
+    explicit LLM flag (`INTENTLOCK_LLM=1`), so neither a stray mode value nor a stale flag
+    silently turns the model on. `INTENTLOCK_LLM_PROVIDER=ollama` selects the local client.
+    """
+    import os
+
     if CONFIG.mode == "offline":
+        return NullClient()
+    if os.environ.get("INTENTLOCK_LLM", "") != "1":
         return NullClient()
     if CONFIG.llm_provider in ("ollama", "local"):
         return OllamaClient()
-    if not CONFIG.llm_api_key or CONFIG.llm_provider == "none":
-        return NullClient()
     return NullClient()  # no network in the demo build; live clients stub off
 
 
@@ -194,7 +216,7 @@ def llm_extract(client: LLMClient, transcript: str, nonce: str) -> tuple[dict | 
     for attempt in range(2):
         try:
             raw = client.complete_json(SYSTEM_PROMPT, user, schema=EXTRACTION_SCHEMA,
-                                        timeout_s=8.0)
+                                        timeout_s=25.0)
             obj = parse_llm_json(raw) if isinstance(raw, str) else raw
             if isinstance(obj, dict):
                 coerced = coerce_extract(obj)

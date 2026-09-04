@@ -18,6 +18,11 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["src/test/setup.ts"],
+    // jsdom only provisions localStorage when the document has a real origin; the default
+    // `about:blank` leaves it undefined and every storage-reading test dies on `.clear()`.
+    environmentOptions: {
+      jsdom: { url: "http://localhost:5173/" },
+    },
   },
 });
 

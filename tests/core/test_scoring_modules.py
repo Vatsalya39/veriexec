@@ -167,16 +167,35 @@ class TestDrift:
         assert drift.dimension(r).score is None
         assert drift.dimension(r).abstain_reason
 
-    def test_a_second_extraction_makes_the_comparison_real_again(self):
-        """`extraction_mode` in {llm, hybrid} means `deterministic_intent` is a second opinion."""
+    def test_a_hybrid_extraction_still_abstains_until_a_real_second_reading_exists(self):
+        """`extraction_mode=hybrid` alone must not manufacture agreement. [found live]
+
+        The flag says two parsers ran at A; it does not say B was handed two statements.
+        A's merge policy resolves every compared field to the deterministic twin, so the
+        merged intent and `deterministic_intent` are equal by construction and every
+        distance would be 0 — the same exculpatory self-comparison the abstaining test
+        above forbids, reachable via a flag. With the live Ollama model wired in, this
+        exact path demoted S08 from BLOCK to CHALLENGE across the 22-scenario corpus:
+        drift silently published 0.0 at coverage 1.00 and the uncertainty penalty never
+        fired. Until A publishes the model's raw, unmerged reading as its own twin, the
+        honest result is an abstention. A reference pre-image is a real second statement
+        and still scores (see `test_tampered_account_scores_full`).
+        """
         i = self._i(extraction_mode="hybrid", deterministic_intent=DeterministicIntent(
             action="TRANSFER", amount=1_000_000.0, currency="INR",
             beneficiary="Kalyani Forge Components Pvt Ltd",
             destination_account="50100234879982",       # the extractors disagree here
         ))
         r = drift.score(i)
-        assert r.score is not None and r.per_field["account"] == 100.0
-        assert set(r.measured) == set(DRIFT_WEIGHTS)
+        assert r.score is None and r.measured == ()
+        assert "no second statement" in r.abstain_reason
+        # And the same intent WITH an independent reference still scores, proving the
+        # abstention is about missing evidence, not a broken dimension. The reference
+        # account differs from the request's (…9982 vs …4471), so the account field —
+        # the one the two extractors disagreed on above — now measures a real 100.0.
+        r2 = drift.score(i, reference_fields={
+            "destination_account": "50100234879982", "amount_minor_units": 1_000_000_00})
+        assert r2.score is not None and r2.per_field["account"] == 100.0
 
     def test_unresolved_amount_is_measurable_with_no_reference_at_all(self):
         """§8's 40 is a claim about the request, not about a disagreement, so it survives.

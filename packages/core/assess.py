@@ -736,6 +736,27 @@ def _publish(
     )
     # --- B15 investigation summary: the ONLY place an LLM may speak, and only after the
     #     decision is frozen. Offline mode serves the deterministic template (N25a).
+    #     The Ollama narrator is consulted only when the kill switch and the env contract
+    #     both allow it, and its paragraph survives only through `summarize`'s acceptance
+    #     check — a number the decision does not already contain is discarded there.
+    llm_paragraph = investigator.ollama_prose(
+        InvestigationRequest(
+            decision=decision.decision.value,
+            risk_score=int(round(float(fused.score if fused.score is not None else STUB_SCORE))),
+            intent_confidence=int(confidence),
+            contributions=tuple(r.wire() for r in fused.contributions),
+            fingerprint_deltas=tuple(d.as_dict() for d in field_deltas),
+            counterfactuals=(),
+            scenario_id=intent.sample_id or "",
+        ),
+        draft=(f"{decision.decision.value} at risk "
+               f"{int(round(float(fused.score if fused.score is not None else STUB_SCORE)))}/100 "
+               f"with intent confidence {int(confidence)}/100. "
+               + "; ".join(
+                   f"{str(r.get('label') or r.get('factor') or 'dimension')} contributed "
+                   f"{float(r.get('points', 0)):.1f} points"
+                   for r in (x.wire() for x in fused.contributions))[:600]),
+    )
     summary, next_steps = investigator.summarize(
         InvestigationRequest(
             decision=decision.decision.value,
@@ -747,6 +768,7 @@ def _publish(
                                   if decision.override_applied else ""),
             scenario_id=intent.sample_id or "",
         ),
+        llm_prose=llm_paragraph,
     )
     return RiskAssessment(
         transaction_id=intent.transaction_id,

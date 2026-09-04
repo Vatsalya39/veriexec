@@ -16,6 +16,8 @@ var/*.db-shm
 var/audit_head.txt
 var/canary.jsonl
 var/bench_latest.json
+var/pipeline.ndjson
+var/*.log
 
 # Secrets — never commit
 .env

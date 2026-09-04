@@ -37,7 +37,7 @@ def _env(key: str, default: str) -> str:
 @dataclass(frozen=True)
 class Config:
     mode: str = _env("INTENTLOCK_MODE", "offline")          # offline | cached | live
-    llm_provider: str = _env("INTENTLOCK_LLM_PROVIDER", "anthropic")
+    llm_provider: str = _env("INTENTLOCK_LLM_PROVIDER", "ollama")
     llm_api_key: str = os.environ.get("INTENTLOCK_LLM_API_KEY", "")
     llm_model: str = _env("INTENTLOCK_LLM_MODEL", "")
     seed: int = int(_env("INTENTLOCK_SEED", "1337"))

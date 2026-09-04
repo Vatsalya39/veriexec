@@ -48,7 +48,13 @@ _DECIDE_VERBS = re.compile(
 _RETROSPECTIVE = re.compile(
     r"\b(did|was|were|who|when|has|have|had|why|show|list|which|how many|what happened)\b", re.I)
 
-TXN_RE = re.compile(r"\b(TXN-[A-Z0-9]+-\d+|TXN-\d+|ASM-S\d+|S\d{2})\b", re.I)
+# A transaction id as it can appear on the chain: the `TXN-…` and `ASM-S\d+` spellings the
+# corpus uses, plus the bare UUIDs A's live pipeline stamps (`uuid.uuid4()` in
+# `pipeline.process_communication`). A UUID is a legal id on this chain, and a chatbot that
+# cannot name a record the operator is looking at fails at its one job.
+TXN_RE = re.compile(
+    r"\b(TXN-[A-Z0-9]+-\d+|TXN-\d+|ASM-S\d+|S\d{2}"
+    r"|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b", re.I)
 
 QUESTION_MENU: tuple[str, ...] = (
     "Why was TXN-…-0007 blocked?",
@@ -141,7 +147,14 @@ _TODAY = re.compile(r"\btoday\b|\bso\s+far\b|\bthis\s+session\b|\bthis\s+morning
 
 def _transaction_id(q: str) -> str | None:
     m = TXN_RE.search(q)
-    return m.group(1).upper() if m else None
+    if not m:
+        return None
+    found = m.group(1)
+    # The corpus spellings (`TXN-…`, `S06`) are case-insensitive by convention and are
+    # normalized to upper so a lowercase `txn-2026-0007` still finds its records. A UUID
+    # is left exactly as typed: it is the id A's live pipeline wrote, byte for byte, and
+    # the chain's `transaction_id = ?` lookup is case-sensitive.
+    return found if "-" in found and found.count("-") == 4 and len(found) == 36 else found.upper()
 
 
 def _since(q: str) -> tuple[str | None, str | None]:
@@ -1043,16 +1056,24 @@ def ollama_narrate(payload: dict) -> str | None:
 
     host = (os.environ.get("OLLAMA_HOST") or "http://127.0.0.1:11434").rstrip("/")
     model = os.environ.get("INTENTLOCK_LLM_MODEL") or "qwen3:14b"
+    # The brief the model sees mirrors the acceptance rule exactly: rephrase the DRAFT,
+    # add no number the DRAFT does not already carry. `_numbers_agree` still has the final
+    # word, so a model that ignores this is discarded, not published.
+    draft = str(payload.get("draft") or "")
     prompt = (
         "You are an explainability narrator for INTENTLOCK audit records.\n"
-        "Here are the exact facts and template prose:\n"
-        f"FACTS: {json.dumps(payload, ensure_ascii=False)}\n"
-        "Narrate this in a single professional, concise sentence. Do NOT invent numbers or change any counts."
+        "Rewrite the DRAFT below as one short, professional sentence for a bank "
+        "operations reviewer. Keep every number exactly as the DRAFT states it. Do NOT "
+        "add any number, name, or cause the DRAFT does not already contain, and do not "
+        "recommend an action.\n"
+        f"DRAFT: {draft}\n\n"
+        "Respond with the rewritten sentence only, no preamble."
     )
     req_data = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
+        "think": False,
         "options": {"temperature": 0.1},
     }).encode("utf-8")
     req = urllib.request.Request(
@@ -1062,9 +1083,14 @@ def ollama_narrate(payload: dict) -> str | None:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=10.0) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return data.get("message", {}).get("content", "").strip()
+        with urllib.request.urlopen(req, timeout=25.0) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            content = str(data.get('message', {}).get('content', ''))
+            # qwen3 is a thinking model: if the server inlined a reasoning block, keep
+            # the answer half. Either way _numbers_agree still has the final word.
+            if '</think>' in content:
+                content = content.split('</think>', 1)[1]
+            return content.strip() or None
     except Exception:
         return None
 

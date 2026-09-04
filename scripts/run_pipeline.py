@@ -698,9 +698,11 @@ def main(argv: list[str] | None = None) -> int:
         path = REPO_ROOT / args.audit if not os.path.isabs(args.audit) else Path(args.audit)
         writer.write(path)
         verdict = writer.verify()
-        state = "OK" if verdict.get("valid") else f"BROKEN at seq {verdict.get('broken_at')}"
+        is_ok = bool(verdict.get("ok") or verdict.get("valid"))
+        broken_seq = verdict.get("first_broken_seq") or verdict.get("broken_at")
+        state = "OK" if is_ok else f"BROKEN at seq {broken_seq}"
         print(f"audit chain: {len(writer.records)} records -> {path} | {state}")
-        if not verdict.get("valid"):
+        if not is_ok:
             return 1
 
     if args.json:

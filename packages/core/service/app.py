@@ -305,6 +305,16 @@ class BreakerCloseRequest(Inbound):
 class ModeRequest(Inbound):
     mode: str = ""
 
+
+class RunStartRequest(Inbound):
+    """`scenario_id` names a sample in A's corpus (`packages/signal_intel/samples`).
+
+    Hoisted to module scope with the other request models: this module uses PEP 563
+    annotations, and a class defined inside `_register_routes` cannot be resolved from
+    its own annotation string, so FastAPI would read it as a query parameter.
+    """
+    scenario_id: str = ""
+
 def _register_routes(app: FastAPI) -> None:
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:
@@ -314,7 +324,7 @@ def _register_routes(app: FastAPI) -> None:
             "ok": True,
             "service": SERVICE,
             "version": __version__,
-            "mode": "offline" if s.offline else s.mode,
+            "mode": f"{s.mode}+llm" if s.llm_available else ("offline" if s.offline else s.mode),
             "policy_version": policy_version(),
             "policy_hash": policy_hash(),
             "degraded_mode": _degraded()["degraded_mode"],
@@ -549,6 +559,62 @@ def _register_routes(app: FastAPI) -> None:
                 "note": "MOCKED: per-transaction explain store lands with the authorization "
                         "store; re-assess via /v1/assess-risk for the live contribution table."}
 
+    # ------------------------------------------------------------- run orchestration
+
+    @app.post("/v1/runs")
+    def start_run(body: RunStartRequest) -> dict[str, Any]:
+        """Start one verification run. The console's live mode drives this.
+
+        Executes the real two-pass pipeline (A → B → C's audit events) in a worker thread
+        and narrates each stage as it lands. Nothing here decides anything: the decision
+        is whatever `assess()` returned, passed through untouched.
+        """
+        from pathlib import Path
+        if not body.scenario_id:
+            raise SchemaViolation("scenario_id is required.")
+        sid = body.scenario_id.strip().upper()
+        sample_path = (Path(__file__).resolve().parents[2] / "signal_intel"
+                       / "samples" / f"{sid}.json")
+        if not sample_path.exists():
+            raise SchemaViolation(f"no such scenario: {sid}. A's corpus is S01..S22.")
+        import json as _json
+        sample = _json.loads(sample_path.read_text(encoding="utf-8"))
+        from . import runs
+        run = runs.start_run(sid, sample)
+        return {"run_id": run["run_id"], "attempt": run["attempt"],
+                "scenario_id": run["scenario_id"]}
+
+    @app.get("/v1/runs/{run_id}")
+    def get_run(run_id: str) -> dict[str, Any]:
+        """The whole snapshot in one request: events, status, and the assessment if any."""
+        from . import runs
+        run = runs.get_run(run_id)
+        if run is None:
+            raise SchemaViolation(f"no such run: {run_id}")
+        return {
+            "run_id": run["run_id"], "scenario_id": run["scenario_id"],
+            "attempt": run["attempt"], "status": run["status"],
+            "started_at": run["started_at"], "ended_at": run["ended_at"],
+            "events": list(run["events"]),
+            "assessment": run["assessment"],
+        }
+
+    @app.get("/v1/runs/{run_id}/events")
+    def run_events(run_id: str) -> Any:
+        """SSE. One event shape, the console's `WorkflowEvent` contract verbatim."""
+        from . import runs
+        from fastapi.responses import StreamingResponse
+        return runs.sse_response(run_id)
+
+    @app.delete("/v1/runs/{run_id}")
+    def cancel_run(run_id: str) -> dict[str, Any]:
+        """Stop a run in flight. Between stages is the honest granularity: the pipeline
+        never leaves a half-written record, and the console sees `run_cancelled`."""
+        from . import runs
+        if runs.cancel_run(run_id):
+            return {"cancelled": run_id}
+        raise SchemaViolation(f"no such running run: {run_id}")
+
 
 def create_app() -> FastAPI:
     """The app. Constructed rather than module-global so tests get a clean one each time."""
@@ -562,7 +628,9 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=list(CORS_ORIGINS),
         allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        # DELETE is the run-cancel verb (`DELETE /v1/runs/:id`); listing it is the cost of
+        # the console's stop button, not a broadening of the write surface.
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
         allow_headers=["*"],
         expose_headers=["X-Policy-Version", "X-Policy-Hash"],
     )

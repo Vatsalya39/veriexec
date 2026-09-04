@@ -209,6 +209,24 @@ class TransactionIntent(Inbound):
     origin_session_id: str = ""
     sample_id: str | None = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_intent_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            data = dict(data)
+            if not data.get("transaction_id"):
+                data["transaction_id"] = str(data.get("intent_id") or data.get("sample_id") or "TXN-DEFAULT")
+            if isinstance(data.get("beneficiary"), dict):
+                ben = data["beneficiary"]
+                data["beneficiary"] = ben.get("name") or ben.get("canonical_name") or ben.get("beneficiary_id")
+            if data.get("amount") is None and data.get("amount_minor_units") is not None:
+                data["amount"] = data["amount_minor_units"] / 100.0
+            if not data.get("requester") and data.get("executive_id"):
+                data["requester"] = data["executive_id"]
+            if data.get("action") == "PRIVILEGED_ACTION":
+                data["action"] = "OTHER"
+        return data
+
     @property
     def amount_minor_units(self) -> int | None:
         """Integer paise, or None when A could not extract an amount at all."""
@@ -276,6 +294,15 @@ class SignalBundle(Inbound):
     channel_switch_flags: list[str] = Field(default_factory=list)
     origin_channel_id: str = ""
     stylometry_features: dict[str, Any] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_signal_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            data = dict(data)
+            if not data.get("transaction_id"):
+                data["transaction_id"] = str(data.get("intent_id") or data.get("bundle_id") or "TXN-DEFAULT")
+        return data
 
     def media_scores_present(self) -> bool:
         """True when any media modality actually scored. Used only for coverage, never

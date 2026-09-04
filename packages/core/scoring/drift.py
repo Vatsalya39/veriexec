@@ -153,17 +153,23 @@ _SELF_MEASURABLE: frozenset[str] = frozenset({"amount"})
 def _has_second_reading(intent: TransactionIntent) -> bool:
     """Is `deterministic_intent` an independent reading, or the same one under another name?
 
-    A publishes `extraction_mode`, and it is the only honest answer to this question. On this
-    corpus it is `deterministic` for all 22 samples — the LLM client is a `NullClient` — so
-    `deterministic_intent` is a copy of the top-level fields, not a second opinion, and
-    comparing them measures nothing. When a real extractor is wired in, the same predicate
-    turns the comparison back on without another edit here.
+    A `hybrid` extraction mode says two parsers ran. It does **not** say B was handed two
+    statements: A's merge policy resolves every compared field to the deterministic twin —
+    deterministic wins where it spoke, and where it found nothing the merged intent falls
+    back to the value the merge itself produced. So `spoken` and `executed` are equal by
+    construction and every distance is 0 — which this module's own docstring calls "an
+    exculpatory claim derived from one reading compared with a copy of itself". That was
+    invisible while the LLM client was a `NullClient` (the mode was never `hybrid`); the
+    first live model made it the default outcome for every scenario without a reference
+    pre-image, and S08's BLOCK quietly became a CHALLENGE.
+
+    Until A publishes the model's raw, unmerged reading as its own twin — a field B could
+    compare the deterministic one against, rather than a flag that says a second parser
+    existed somewhere — there is no second statement here. Drift abstains rather than
+    fabricate agreement; the reference pre-image path above is a real, independent
+    statement and is untouched.
     """
-    det = intent.deterministic_intent
-    if det is None:
-        return False
-    mode = getattr(intent.extraction_mode, "value", intent.extraction_mode)
-    return str(mode).strip().casefold() in {"llm", "hybrid"}
+    return False
 
 
 def score(

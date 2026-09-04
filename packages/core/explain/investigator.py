@@ -43,6 +43,66 @@ def _numbers_in(text: str) -> set[str]:
     return set(re.findall(r"\d[\d,\.]*", text))
 
 
+#: The narrator brief. The model may only rephrase the template sentence; §18.1's hard
+#: rules are enforced by `summarize`, not by this prompt: numbers must be a subset of
+#: the input's, and the acceptance check discards anything that fails it.
+_BRIEF = (
+    "Rewrite the DRAFT below as one short professional paragraph for a bank operations "
+    "reviewer. Use only the facts given. Do not add numbers, names, or causes. Do not "
+    "recommend an action, and do not say whether the payment should proceed. Keep every "
+    "identifier exactly as written."
+)
+
+#: qwen3 is a thinking model: /api/chat returns the reasoning block inline in `content`
+#: before the answer. The delimiter below separates the two halves of its output.
+_THINK_END = "</think>"
+
+
+def ollama_prose(request: "InvestigationRequest", draft: str) -> str | None:
+    """The optional LLM paragraph, from the local Ollama model (qwen3:14b by default).
+
+    Returns `None` on any failure — unreachable model, timeout, junk output — which the
+    caller turns into "keep the template". There is no code path in which the model's
+    absence produces a worse summary than a wrong one.
+
+    Gated by the §20 kill switch *and* the env contract: `NO_LLM`/`MINIMAL` mode and
+    `INTENTLOCK_MODE=offline` both force the template, which is the N25a guarantee.
+    """
+    import json
+    import os
+    import urllib.request
+
+    from .. import degraded
+    from ..config import settings
+
+    if not degraded.llm_enabled() or settings().mode == "offline":
+        return None
+    host = (os.environ.get("OLLAMA_HOST") or "http://127.0.0.1:11434").rstrip("/")
+    model = os.environ.get("INTENTLOCK_LLM_MODEL") or "qwen3:14b"
+    prompt = (
+        f"{_BRIEF}\n\nDRAFT: {draft}\n\n"
+        "Respond with the rewritten paragraph only, no preamble."
+    )
+    data = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False,
+        "think": False,
+        "options": {"temperature": 0.1},
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{host}/api/chat", data=data, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=15.0) as resp:
+            out = json.loads(resp.read().decode("utf-8"))
+            text = str(out.get("message", {}).get("content", "")).strip()
+            if _THINK_END in text:
+                text = text.split(_THINK_END, 1)[1].strip()
+            return text or None
+    except Exception:
+        return None
+
+
 def summarize(request: InvestigationRequest, *, llm_prose: str | None = None) -> tuple[str, list[str]]:
     """(`investigation_summary`, `recommended_next_steps`). Template-first, LLM-optional.
 
@@ -73,17 +133,21 @@ def summarize(request: InvestigationRequest, *, llm_prose: str | None = None) ->
     template = f"{head} {reasons.capitalize()}."
 
     # The LLM may only rephrase. Numbers must be a subset of the input's numbers; a
-    # `decision` key in the output is refused outright.
+    # `decision` key in the output is refused outright. The allowed set carries the fixed
+    # scale denominators too ("40/100"): a rephrasing that keeps the template's own
+    # numbers verbatim must not be rejected over a "/100" the template itself wrote.
     prose = template
     if llm_prose:
-        if re.search(r"\bdecision\b", llm_prose, re.IGNORECASE):
-            pass  # refused — keep the template
-        elif _numbers_in(llm_prose) <= _numbers_in(
+        allowed = _numbers_in(
             f"{request.risk_score} {request.intent_confidence} "
             + " ".join(str(c.get("points", "")) for c in request.contributions)
             + " ".join(str(c.get("raw_score", "")) for c in request.contributions)
             + " ".join(str(d.get("expected", "")) for d in request.fingerprint_deltas)
-        ):
+            + template
+        )
+        if re.search(r"\bdecision\b", llm_prose, re.IGNORECASE):
+            pass  # refused — keep the template
+        elif _numbers_in(llm_prose) <= allowed:
             prose = llm_prose.strip()
 
     summary = f"{prose} {DISCLAIMER}"[:1800]

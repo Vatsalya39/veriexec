@@ -142,8 +142,8 @@ export const canary = {
 export const core = {
   mode: (mode: "FULL" | "NO_LLM" | "MINIMAL") =>
     call<{ mode: string }>("POST", `${CORE_URL}/v1/mode`, { mode }),
-  breaker: () => call<{ state: string; opened_at?: string; trial_at?: string }>(
-    "GET", `${CORE_URL}/v1/breaker/state`),
+  breaker: () => call<{ state: string; window_events?: number; opens_until?: string | null; trip_reason?: string | null }>(
+    "GET", `${CORE_URL}/v1/breaker`),
   enrol: (body: { device_id: string; executive_id: string; public_key_spki_b64u: string; label?: string }) =>
     call<{ device_id: string; thumbprint: string; enrolled_at: string }>(
       "POST", `${CORE_URL}/v1/device/enrol`, body),

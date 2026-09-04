@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .config import CONFIG
+from .extract.llm import NullClient, get_client
 from .pipeline import process_communication
 from .replay.replay import issue_freshness
 
@@ -90,8 +91,12 @@ class FreshnessRequest(BaseModel):
 
 @app.get("/healthz")
 def healthz():
+    # The mode banner must state what the extraction path actually does, not what the key
+    # store guesses: Ollama needs no API key, so the old `if CONFIG.llm_api_key` reported
+    # "offline" while the model ran. The client itself is the truth here.
+    active = not isinstance(get_client(), NullClient)
     return {"ok": True, "service": "signal", "version": "1.0.0",
-            "mode": CONFIG.mode if CONFIG.llm_api_key else "offline",
+            "mode": f"{CONFIG.mode}+llm" if active else "offline",
             "policy_version": CONFIG.policy_version}
 
 

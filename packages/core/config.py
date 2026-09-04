@@ -62,8 +62,17 @@ class Settings:
 
     @property
     def llm_available(self) -> bool:
-        """No key => silently fall back to offline. Never crash (§13)."""
-        return bool(self.llm_api_key) and self.mode in ("live", "production")
+        """No key => silently fall back to offline. Never crash (§13).
+
+        Local providers (ollama) are the exception: they need no API key, only a
+        reachable host, so requiring a key would report "offline" while the model runs.
+        The kill switch (`/v1/mode`) still forces every model path off regardless of this.
+        """
+        if self.mode not in ("live", "production"):
+            return False
+        if self.llm_provider in ("ollama", "local"):
+            return True
+        return bool(self.llm_api_key)
 
     @property
     def offline(self) -> bool:
@@ -97,7 +106,7 @@ def load_settings() -> Settings:
     db_path = Path(_env("INTENTLOCK_DB_PATH") or (REPO_ROOT / "var" / "intentlock_core.sqlite"))
     return Settings(
         mode=mode,
-        llm_provider=(_env("INTENTLOCK_LLM_PROVIDER") or "anthropic").lower(),
+        llm_provider=(_env("INTENTLOCK_LLM_PROVIDER") or "ollama").lower(),
         llm_api_key=_env("INTENTLOCK_LLM_API_KEY"),
         seed=_int_env("INTENTLOCK_SEED", 1337),
         hmac_secret=secret,

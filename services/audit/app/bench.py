@@ -95,6 +95,7 @@ def run(live: bool = False) -> dict[str, Any]:
         if assessment is None:
             rows.append({"id": sid, "class": scenario["class"], "expected":
                          scenario["expected_decision"], "actual": "UNAVAILABLE",
+                         "visible_to_requester": "UNAVAILABLE",
                          "error": error, "latency_ms": elapsed_ms,
                          "amount_minor_units": fixture["intent"].get("amount_minor_units"),
                          "is_canary": False})
@@ -167,8 +168,8 @@ def _abstentions_handled(fixture: dict, assessment: dict) -> bool:
 
 def _blocked_outcome(row: dict) -> bool:
     """§12: BLOCK, SILENT_ESCALATION, REFUSED, EXPIRED all count as attack-blocked."""
-    return row["actual"] in ("BLOCK", "SILENT_ESCALATION", "REFUSED", "EXPIRED") \
-        or row["visible_to_requester"] in ("BLOCK", "EXPIRED")
+    return row.get("actual") in ("BLOCK", "SILENT_ESCALATION", "REFUSED", "EXPIRED") \
+        or row.get("visible_to_requester") in ("BLOCK", "EXPIRED")
 
 
 def _metrics(rows: list[dict]) -> dict[str, Any]:

@@ -32,7 +32,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import chat, models
 from .canonical import canonical
-from .config import (DB_PATH, HEAD_PATH, MODE, SERVICE_VERSION, demo_endpoints_enabled,
+from .config import (DB_PATH, HEAD_PATH, MODE, POLICY_VERSION, SERVICE_VERSION, demo_endpoints_enabled,
                      llm_enabled)
 from .db import AuditStore
 
